@@ -765,6 +765,7 @@ function Services() {
       {/* Compatibility anchor for previously-shared #care links */}
       <span id="care" className="absolute" aria-hidden="true" />
       <div className="stars" />
+      <div className="ambient-glow" aria-hidden="true" />
       <div className="relative z-10 max-w-6xl mx-auto">
         <div className="text-center max-w-2xl mx-auto">
           <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">Services</div>
@@ -780,7 +781,7 @@ function Services() {
             return (
               <div
                 key={c.key}
-                className={`relative rounded-2xl p-6 sm:p-7 transition-all flex flex-col ${c.className}`}
+                className={`card-premium relative rounded-2xl p-6 sm:p-7 flex flex-col ${c.className}`}
                 style={{
                   order: c.mobileOrder,
                   background: featured
@@ -1110,15 +1111,6 @@ function App() {
         onClose={() => setEnquiryOpen(false)}
         prefersReducedMotion={reducedMotion}
       />
-
-      {/* Crawlable content */}
-      <div className="sr-only">
-        <h2>SHRI G AQUA — Mathura water and cooling specialists</h2>
-        <p>Commercial RO systems planned to required capacity for businesses, malls, institutions and large complexes in Mathura, Uttar Pradesh. Complete supply, installation and ongoing service.</p>
-        <p>Domestic RO sales, installation and maintenance across Mathura.</p>
-        <p>Split AC installation and service, washing machine service and refrigerator service.</p>
-        <p>Address: {ADDRESS_LINE}. Call {PHONE_PRIMARY_DISPLAY} or {PHONE_ALT_DISPLAY}. Email {EMAIL}.</p>
-      </div>
     </main>
   )
 }

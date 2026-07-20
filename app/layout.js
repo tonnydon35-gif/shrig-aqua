@@ -2,7 +2,12 @@ import './globals.css'
 import { Providers } from './providers'
 import { PHONE_PRIMARY_DISPLAY, PHONE_ALT_DISPLAY, EMAIL } from '@/lib/business'
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  'https://www.shrigaqua.in' // production-safe default; override via env in production
+
 export const metadata = {
+  metadataBase: new URL(SITE_URL),
   title: 'SHRI G AQUA Mathura | RO, Commercial RO & AC Service',
   description:
     'Domestic RO sales and service, customized Commercial RO systems, Split AC installation and service, washing machine service and refrigerator service enquiries in Mathura.',
@@ -19,11 +24,20 @@ export const metadata = {
   openGraph: {
     title: 'SHRI G AQUA Mathura | RO, Commercial RO & AC Service',
     description:
-      'Domestic RO sales and service, customized Commercial RO systems, Split AC installation and service, and appliance service enquiries across Mathura.',
+      'Domestic RO sales and service, customized Commercial RO systems, Split AC installation and service, and appliance service enquiries in Mathura.',
+    url: '/',
+    siteName: 'SHRI G AQUA',
     type: 'website',
-    url: '/'
+    locale: 'en_IN'
   },
-  robots: { index: true, follow: true }
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SHRI G AQUA Mathura | RO, Commercial RO & AC Service',
+    description:
+      'Domestic RO sales and service, customized Commercial RO systems, Split AC installation and service in Mathura.'
+  },
+  robots: { index: true, follow: true },
+  category: 'Water treatment services'
 }
 
 export const viewport = {
@@ -36,7 +50,9 @@ export const viewport = {
 const localBusinessLd = {
   '@context': 'https://schema.org',
   '@type': 'LocalBusiness',
+  '@id': `${SITE_URL}/#business`,
   name: 'SHRI G AQUA',
+  url: SITE_URL,
   telephone: PHONE_PRIMARY_DISPLAY,
   email: EMAIL,
   address: {
@@ -48,10 +64,18 @@ const localBusinessLd = {
     addressCountry: 'IN'
   },
   contactPoint: [
-    { '@type': 'ContactPoint', telephone: PHONE_PRIMARY_DISPLAY, contactType: 'customer service' },
-    { '@type': 'ContactPoint', telephone: PHONE_ALT_DISPLAY, contactType: 'customer service' }
+    { '@type': 'ContactPoint', telephone: PHONE_PRIMARY_DISPLAY, contactType: 'customer service', areaServed: 'IN', availableLanguage: ['en', 'hi'] },
+    { '@type': 'ContactPoint', telephone: PHONE_ALT_DISPLAY, contactType: 'customer service', areaServed: 'IN', availableLanguage: ['en', 'hi'] }
   ],
-  areaServed: { '@type': 'City', name: 'Mathura, Uttar Pradesh' }
+  areaServed: { '@type': 'City', name: 'Mathura, Uttar Pradesh' },
+  makesOffer: [
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Domestic RO sales, installation and service' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Customized Commercial RO systems and installation' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Commercial RO ongoing service and maintenance' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Split AC installation and service' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Washing machine service' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Refrigerator service' } }
+  ]
 }
 
 export default function RootLayout({ children }) {

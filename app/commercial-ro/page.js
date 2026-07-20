@@ -337,7 +337,7 @@ export default function CommercialROPage() {
               Water treatment engineered for the capacity your project needs.
             </h1>
             <p className="mt-5 text-sm sm:text-base text-white/60 max-w-2xl mx-auto leading-relaxed">
-              Commercial RO, industrial water purification and softening systems for offices, restaurants, schools, hospitals, hotels, institutions, housing societies and manufacturing requirements across Mathura and surrounding regions.
+              Commercial RO, industrial water purification and softening systems for offices, restaurants, schools, hospitals, hotels, institutions, housing societies and manufacturing requirements across Mathura.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <a

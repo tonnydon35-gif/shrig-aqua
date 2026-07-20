@@ -1,5 +1,7 @@
 export default function robots() {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || 'https://shrigaqua.example'
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    'https://www.shrigaqua.in'
   return {
     rules: [
       { userAgent: '*', allow: '/' }

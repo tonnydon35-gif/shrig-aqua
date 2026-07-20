@@ -1,9 +1,8 @@
-import {
-  PHONE_PRIMARY_DISPLAY,
-  PHONE_ALT_DISPLAY,
-  EMAIL,
-  ADDRESS_LINE
-} from '@/lib/business'
+import { PHONE_PRIMARY_DISPLAY, PHONE_ALT_DISPLAY, EMAIL } from '@/lib/business'
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  'https://www.shrigaqua.in'
 
 export const metadata = {
   title: 'Commercial RO Plant Systems in Mathura | SHRI G AQUA',
@@ -15,7 +14,15 @@ export const metadata = {
     description:
       'Commercial and Industrial RO capacities from 250 LPH to custom 3000+ LPH plants, planned around your requirement by SHRI G AQUA, Mathura.',
     url: '/commercial-ro',
-    type: 'website'
+    siteName: 'SHRI G AQUA',
+    type: 'website',
+    locale: 'en_IN'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Commercial RO Plant Systems in Mathura | SHRI G AQUA',
+    description:
+      'Commercial and Industrial RO capacities from 250 LPH to custom 3000+ LPH plants — SHRI G AQUA, Mathura.'
   },
   robots: { index: true, follow: true }
 }
@@ -25,13 +32,11 @@ const serviceLd = {
   '@type': 'Service',
   serviceType: 'Commercial and Industrial RO Plant Systems',
   name: 'Commercial RO Plant Systems in Mathura',
-  areaServed: {
-    '@type': 'City',
-    name: 'Mathura, Uttar Pradesh'
-  },
+  areaServed: { '@type': 'City', name: 'Mathura, Uttar Pradesh' },
   provider: {
     '@type': 'LocalBusiness',
     name: 'SHRI G AQUA',
+    url: SITE_URL,
     telephone: PHONE_PRIMARY_DISPLAY,
     email: EMAIL,
     address: {
@@ -86,8 +91,8 @@ const breadcrumbLd = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Home', item: '/' },
-    { '@type': 'ListItem', position: 2, name: 'Commercial RO Solutions', item: '/commercial-ro' }
+    { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+    { '@type': 'ListItem', position: 2, name: 'Commercial RO Solutions', item: `${SITE_URL}/commercial-ro` }
   ]
 }
 
