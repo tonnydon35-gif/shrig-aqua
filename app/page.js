@@ -1,112 +1,295 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import { Phone, MessageCircle, Mail, MapPin, ChevronLeft, ChevronRight, ArrowUpRight, X, Menu } from 'lucide-react'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { Phone, MessageCircle, Mail, MapPin, ChevronLeft, ChevronRight, ArrowUpRight, X, Menu, WashingMachine, Refrigerator } from 'lucide-react'
 
 /* ============================================================
-   SHRI G AQUA — Product Universe (Phase 1)
+   SHRI G AQUA — Revision 01
    ------------------------------------------------------------
-   - Cinematic three-product selector (Commercial RO default)
-   - Explore -> fullscreen product expansion
-   - Scroll-driven exploded view (sticky, progress-based)
-   - Persistent Call/WhatsApp actions + mobile bottom dock
-   ProductPlanet is a REPLACEABLE component ready to accept GLB
-   in Phase 2 without touching the surrounding UI.
+   - No external stock imagery. Products rendered as honest
+     schematic posters via SVG (ProductVisual component).
+   - When /public/products/<slug>/poster.webp exists it will be
+     used automatically (falls back to the SVG schematic).
+   - Selected product is fully visible (no circular crop).
+   - Fixed vertical composition: eyebrow > heading > copy >
+     product > CTA. No negative overlap.
+   - Expanded view: single info panel, one active state at a time.
+   - Appliance Care section (#care) implemented.
 ============================================================ */
 
 const PHONE_PRIMARY = '+918449691018'
 const PHONE_PRIMARY_DISPLAY = '+91 84496 91018'
 const PHONE_ALT = '+918460514208'
 const PHONE_ALT_DISPLAY = '+91 84605 14208'
-const WHATSAPP_URL = `https://wa.me/918449691018?text=${encodeURIComponent('Hello SHRI G AQUA, I want details about your services.')}`
+const WHATSAPP_URL = `https://wa.me/918449691018?text=${encodeURIComponent('Hello SHRI G AQUA, I would like details about your services.')}`
 const EMAIL = 'shrigmathura@gmail.com'
 const ADDRESS_LINE = '301 Krishna Vihar Colony, Near Diksha Public School, BSA Road, Bypass, Mathura – 281001, Uttar Pradesh'
 const MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ADDRESS_LINE)}`
 
+/* ------- Product schematic SVGs (honest posters until real assets are supplied) ------- */
+function DomesticROSvg({ accent = '#7dd3fc' }) {
+  return (
+    <svg viewBox="0 0 400 560" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Domestic RO water purifier" style={{ display: 'block' }}>
+      <defs>
+        <linearGradient id="dro-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0f1524" />
+          <stop offset="1" stopColor="#070a12" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="200" cy="540" rx="150" ry="10" fill={accent} opacity="0.14" />
+      {/* Tap fixture */}
+      <path d="M180 40 L180 72 L220 72 L220 40 Z" stroke={accent} strokeOpacity="0.55" strokeWidth="1.2" fill="none" />
+      <path d="M195 25 L205 25 L205 40 L195 40 Z" stroke={accent} strokeOpacity="0.55" strokeWidth="1.2" fill="none" />
+      <circle cx="200" cy="80" r="2.5" fill={accent} opacity="0.9" />
+      {/* Body */}
+      <rect x="78" y="90" width="244" height="420" rx="32" fill="url(#dro-body)" stroke={accent} strokeOpacity="0.42" strokeWidth="1.2" />
+      <rect x="100" y="110" width="200" height="350" rx="22" fill="none" stroke={accent} strokeOpacity="0.1" />
+      {/* Filter cartridges */}
+      <g stroke={accent} strokeOpacity="0.42" strokeWidth="1" fill="none">
+        <rect x="120" y="140" width="42" height="210" rx="21" />
+        <rect x="180" y="140" width="42" height="210" rx="21" />
+        <rect x="240" y="140" width="42" height="210" rx="21" />
+        <line x1="120" y1="180" x2="162" y2="180" strokeOpacity="0.2" />
+        <line x1="180" y1="180" x2="222" y2="180" strokeOpacity="0.2" />
+        <line x1="240" y1="180" x2="282" y2="180" strokeOpacity="0.2" />
+      </g>
+      {/* Status display */}
+      <rect x="140" y="380" width="120" height="32" rx="6" fill="#03060c" stroke={accent} strokeOpacity="0.5" />
+      <circle cx="156" cy="396" r="3" fill={accent} />
+      <text x="210" y="400" textAnchor="middle" fill={accent} fillOpacity="0.85" fontSize="10" fontFamily="Inter, sans-serif" letterSpacing="0.18em">DOMESTIC RO</text>
+      {/* Dispense nozzle */}
+      <rect x="175" y="440" width="50" height="22" rx="4" fill="none" stroke={accent} strokeOpacity="0.5" />
+      <path d="M200 462 L200 478" stroke={accent} strokeOpacity="0.6" strokeWidth="1.4" />
+      <circle cx="200" cy="484" r="2" fill={accent} opacity="0.9" />
+    </svg>
+  )
+}
+
+function CommercialROSvg({ accent = '#67e8f9' }) {
+  return (
+    <svg viewBox="0 0 640 520" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Commercial RO plant" style={{ display: 'block' }}>
+      <defs>
+        <linearGradient id="cro-frame" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0d1422" />
+          <stop offset="1" stopColor="#060a12" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="320" cy="495" rx="260" ry="12" fill={accent} opacity="0.14" />
+      {/* Skid frame */}
+      <rect x="40" y="140" width="560" height="320" rx="14" fill="url(#cro-frame)" stroke={accent} strokeOpacity="0.45" strokeWidth="1.2" />
+      {/* Frame cross-braces */}
+      <line x1="40" y1="180" x2="600" y2="180" stroke={accent} strokeOpacity="0.14" />
+      <line x1="40" y1="420" x2="600" y2="420" stroke={accent} strokeOpacity="0.14" />
+      {/* Pressure vessels (RO membranes horizontal) */}
+      <g stroke={accent} strokeOpacity="0.5" strokeWidth="1.2" fill="none">
+        <rect x="80" y="210" width="420" height="48" rx="24" />
+        <rect x="80" y="270" width="420" height="48" rx="24" />
+        <rect x="80" y="330" width="420" height="48" rx="24" />
+        <line x1="120" y1="210" x2="120" y2="258" strokeOpacity="0.18" />
+        <line x1="460" y1="210" x2="460" y2="258" strokeOpacity="0.18" />
+        <line x1="120" y1="270" x2="120" y2="318" strokeOpacity="0.18" />
+        <line x1="460" y1="270" x2="460" y2="318" strokeOpacity="0.18" />
+      </g>
+      {/* Piping manifold on the right */}
+      <g stroke={accent} strokeOpacity="0.4" strokeWidth="1.2" fill="none">
+        <path d="M500 234 L540 234 L540 354 L500 354" />
+        <path d="M500 294 L560 294" />
+        <circle cx="560" cy="294" r="6" />
+      </g>
+      {/* High-pressure pump on left */}
+      <g stroke={accent} strokeOpacity="0.45" strokeWidth="1.2" fill="none">
+        <rect x="58" y="268" width="18" height="52" rx="3" />
+        <circle cx="67" cy="294" r="9" />
+      </g>
+      {/* Control panel (top-right) */}
+      <g>
+        <rect x="440" y="150" width="140" height="48" rx="5" fill="#03060c" stroke={accent} strokeOpacity="0.5" />
+        <circle cx="456" cy="174" r="3" fill={accent} />
+        <text x="510" y="178" textAnchor="middle" fill={accent} fillOpacity="0.85" fontSize="10" fontFamily="Inter, sans-serif" letterSpacing="0.18em">COMMERCIAL RO</text>
+      </g>
+      {/* Gauges */}
+      <g stroke={accent} strokeOpacity="0.45" strokeWidth="1" fill="none">
+        <circle cx="90" cy="170" r="10" />
+        <circle cx="120" cy="170" r="10" />
+        <circle cx="150" cy="170" r="10" />
+      </g>
+      {/* Base skids */}
+      <line x1="70" y1="460" x2="570" y2="460" stroke={accent} strokeOpacity="0.3" />
+      <line x1="90" y1="460" x2="90" y2="475" stroke={accent} strokeOpacity="0.3" />
+      <line x1="550" y1="460" x2="550" y2="475" stroke={accent} strokeOpacity="0.3" />
+    </svg>
+  )
+}
+
+function SplitACSvg({ accent = '#a5f3fc' }) {
+  return (
+    <svg viewBox="0 0 640 360" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Split AC indoor unit" style={{ display: 'block' }}>
+      <defs>
+        <linearGradient id="ac-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0f1524" />
+          <stop offset="0.55" stopColor="#0a0f1b" />
+          <stop offset="1" stopColor="#060a12" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="320" cy="330" rx="250" ry="9" fill={accent} opacity="0.14" />
+      {/* Wall line */}
+      <line x1="20" y1="70" x2="620" y2="70" stroke={accent} strokeOpacity="0.12" />
+      {/* Main body */}
+      <path d="M60 90 L580 90 Q604 90 604 114 L604 210 Q604 236 578 240 L62 240 Q36 236 36 210 L36 114 Q36 90 60 90 Z" fill="url(#ac-body)" stroke={accent} strokeOpacity="0.5" strokeWidth="1.2" />
+      {/* Top intake grille */}
+      <g stroke={accent} strokeOpacity="0.22" strokeWidth="0.8">
+        <line x1="70" y1="105" x2="570" y2="105" />
+        <line x1="70" y1="114" x2="570" y2="114" />
+        <line x1="70" y1="123" x2="570" y2="123" />
+      </g>
+      {/* Display / logo strip */}
+      <rect x="280" y="148" width="80" height="18" rx="3" fill="#03060c" stroke={accent} strokeOpacity="0.5" />
+      <text x="320" y="161" textAnchor="middle" fill={accent} fillOpacity="0.85" fontSize="9" fontFamily="Inter, sans-serif" letterSpacing="0.2em">SPLIT AC</text>
+      <circle cx="260" cy="157" r="2" fill={accent} />
+      {/* Louver vent */}
+      <rect x="60" y="195" width="520" height="36" rx="6" fill="#03060c" stroke={accent} strokeOpacity="0.4" />
+      <g stroke={accent} strokeOpacity="0.2">
+        <line x1="70" y1="205" x2="570" y2="205" />
+        <line x1="70" y1="213" x2="570" y2="213" />
+        <line x1="70" y1="221" x2="570" y2="221" />
+      </g>
+      {/* Cool airflow indicator */}
+      <g stroke={accent} strokeOpacity="0.45" strokeWidth="1" fill="none">
+        <path d="M180 250 Q200 275 220 250" />
+        <path d="M240 258 Q260 283 280 258" />
+        <path d="M300 262 Q320 287 340 262" />
+        <path d="M360 258 Q380 283 400 258" />
+        <path d="M420 250 Q440 275 460 250" />
+      </g>
+    </svg>
+  )
+}
+
+/* ------- Product data ------- */
 const PRODUCTS = [
   {
     id: 'domestic',
+    slug: 'domestic-ro',
     name: 'Domestic RO',
-    kicker: '01 — Home',
+    kicker: '01 — DOMESTIC RO',
     heading: 'Clean water, designed around your home.',
     copy: 'Domestic RO systems, installation and dependable service across Mathura.',
     cta: 'Explore system',
     accent: '#7dd3fc',
-    tint: 'radial-gradient(circle at 40% 35%, rgba(125,211,252,0.55), rgba(8,20,40,0.9) 65%)',
-    image: 'https://images.unsplash.com/photo-1533167649158-6d508895b680?auto=format&fit=crop&w=1400&q=80',
-    parts: [
-      { label: 'Sediment pre-filter', copy: 'Removes visible impurities and protects downstream stages.' },
-      { label: 'Activated carbon', copy: 'Reduces chlorine, odour and organic residue.' },
-      { label: 'RO membrane', copy: 'The heart of the system — dissolved solids are rejected here.' },
-      { label: 'Storage & tap', copy: 'Ready-to-serve purified water on demand.' }
+    Svg: DomesticROSvg,
+    aspect: 400 / 560,
+    stages: [
+      {
+        title: 'Overview',
+        body: 'Home RO systems selected to match your source water and household usage. Clean install, reliable service, no jargon.'
+      },
+      {
+        title: 'System stages',
+        body: 'Sediment pre-filter, activated carbon, RO membrane and storage tap. Each stage sized and placed for consistent water quality.'
+      },
+      {
+        title: 'Ongoing service',
+        body: 'Filter replacements, sanitation and prompt in-home visits when something needs attention.'
+      }
     ]
   },
   {
     id: 'commercial',
+    slug: 'commercial-ro',
     name: 'Commercial RO',
-    kicker: '02 — Business',
+    kicker: '02 — COMMERCIAL RO',
     heading: 'Built for the capacity your business needs.',
     copy: 'Customized commercial RO systems with complete supply, installation and ongoing service—from focused requirements to malls and large complexes.',
     cta: 'Plan a commercial RO system',
     accent: '#67e8f9',
-    tint: 'radial-gradient(circle at 45% 35%, rgba(103,232,249,0.65), rgba(6,18,36,0.95) 62%)',
-    image: 'https://images.unsplash.com/photo-1651651677615-dffb63ae4d62?auto=format&fit=crop&w=1400&q=80',
-    parts: [
-      { label: 'Raw water assessment', copy: 'Capacity, TDS and usage load evaluated on site.' },
-      { label: 'Multi-stage pre-treatment', copy: 'Sand, carbon and softening as required by source water.' },
-      { label: 'High-pressure RO stack', copy: 'Membranes sized to daily litre demand — small unit to large plant.' },
-      { label: 'Storage, dosing & delivery', copy: 'Tanks, UV, dosing and piping installed end-to-end.' },
-      { label: 'Ongoing service', copy: 'Scheduled maintenance and rapid support across Mathura.' }
+    Svg: CommercialROSvg,
+    aspect: 640 / 520,
+    stages: [
+      {
+        title: 'Overview',
+        body: 'Every commercial deployment begins with an on-site assessment: source water TDS, hardness and daily litre demand determine the plant configuration.'
+      },
+      {
+        title: 'System stages',
+        body: 'Multi-stage pre-treatment, high-pressure RO membrane stack sized to load, storage, dosing and UV — installed as one complete supply.'
+      },
+      {
+        title: 'Ongoing service',
+        body: 'Scheduled maintenance visits, membrane cleaning cycles and rapid support across Mathura keep the plant running at spec.'
+      }
     ]
   },
   {
     id: 'splitac',
+    slug: 'split-ac',
     name: 'Split AC',
-    kicker: '03 — Comfort',
+    kicker: '03 — SPLIT AC',
     heading: 'Cooling installed and maintained properly.',
     copy: 'Split AC installation, inspection and service enquiries across Mathura.',
     cta: 'Explore system',
     accent: '#a5f3fc',
-    tint: 'radial-gradient(circle at 40% 30%, rgba(165,243,252,0.5), rgba(10,20,32,0.92) 65%)',
-    image: 'https://images.unsplash.com/photo-1573573226985-72f731413b23?auto=format&fit=crop&w=1400&q=80',
-    parts: [
-      { label: 'Site survey', copy: 'Room load, cabling and drainage routes checked first.' },
-      { label: 'Indoor unit mount', copy: 'Levelled, secure, and positioned for even airflow.' },
-      { label: 'Copper piping & vacuum', copy: 'Leak-free run, proper insulation, correct evacuation.' },
-      { label: 'Commissioning & service', copy: 'Test run, performance check and scheduled service visits.' }
+    Svg: SplitACSvg,
+    aspect: 640 / 360,
+    stages: [
+      {
+        title: 'Overview',
+        body: 'On-site survey covers room load, cabling routes and drainage. The right unit for the space — not just any unit.'
+      },
+      {
+        title: 'Installation',
+        body: 'Indoor unit levelled and mounted, copper piping with proper insulation, vacuum evacuation done correctly.'
+      },
+      {
+        title: 'Ongoing service',
+        body: 'Performance checks, gas top-ups and scheduled service visits so the system runs cool through the season.'
+      }
     ]
   }
 ]
+const DEFAULT_INDEX = 1
 
-const DEFAULT_INDEX = 1 // Commercial RO
+/* ------- ProductVisual: replaceable renderer -------
+   Renders isolated equipment. Prefers /public/products/<slug>/poster.webp
+   when supplied; otherwise renders the honest SVG schematic.
+   No circular masking, no planet effect.
+============================================================ */
+function ProductVisual({ product, sizeClass = 'w-full h-full', dim = false }) {
+  const [hasPoster, setHasPoster] = useState(false)
+  const posterUrl = `/products/${product.slug}/poster.webp`
 
-/* ------- Replaceable product renderer -------
-   Currently: masked image sphere with atmospheric glow.
-   Phase 2: swap internals with <Canvas> + <GLBModel> without
-   changing this component's props contract. */
-function ProductPlanet({ product, size = 480, className = '', showAtmosphere = true }) {
+  useEffect(() => {
+    let alive = true
+    const img = new Image()
+    img.onload = () => { if (alive) setHasPoster(true) }
+    img.onerror = () => { if (alive) setHasPoster(false) }
+    img.src = posterUrl
+    return () => { alive = false }
+  }, [posterUrl])
+
+  const Svg = product.Svg
   return (
-    <div
-      className={`relative ${className}`}
-      style={{ width: size, height: size }}
-      aria-hidden="true"
-    >
-      {showAtmosphere && (
-        <div
-          className="atmosphere"
-          style={{ boxShadow: `0 0 90px 24px ${product.accent}30, 0 0 160px 40px ${product.accent}18` }}
-        />
+    <div className={`relative ${sizeClass}`} aria-hidden="true">
+      {/* Soft ambient light behind the equipment (not a circular mask) */}
+      <div
+        className="absolute -inset-4 pointer-events-none"
+        style={{
+          background: `radial-gradient(closest-side, ${product.accent}22, transparent 70%)`,
+          filter: 'blur(10px)',
+          opacity: dim ? 0.4 : 1
+        }}
+      />
+      {hasPoster ? (
+        <img src={posterUrl} alt={product.name} className="relative w-full h-full object-contain" style={{ opacity: dim ? 0.6 : 1 }} />
+      ) : (
+        <div className="relative w-full h-full flex items-center justify-center" style={{ opacity: dim ? 0.55 : 1 }}>
+          <Svg accent={product.accent} />
+        </div>
       )}
-      <div className="planet w-full h-full">
-        <div className="planet-img" style={{ backgroundImage: `url(${product.image})` }} />
-        <div className="planet-tint" style={{ background: product.tint, mixBlendMode: 'multiply', opacity: 0.85 }} />
-        <div className="planet-tint" style={{ background: product.tint, mixBlendMode: 'screen', opacity: 0.25 }} />
-      </div>
     </div>
   )
 }
 
-/* ------- Persistent header / nav ------- */
+/* ------- Top bar ------- */
 function TopBar({ onMenu, hidden }) {
   return (
     <header className={`fixed top-0 left-0 right-0 z-40 transition-opacity duration-500 ${hidden ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -127,18 +310,18 @@ function TopBar({ onMenu, hidden }) {
   )
 }
 
-/* ------- Mobile bottom dock ------- */
+/* ------- Mobile bottom dock (persistent) ------- */
 function MobileDock() {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe px-4">
-      <div className="flex items-center gap-2 mx-auto max-w-md rounded-full border border-white/10 bg-black/60 backdrop-blur-xl px-2 py-2">
-        <a href={`tel:${PHONE_PRIMARY}`} className="flex-1 flex items-center justify-center gap-2 h-11 rounded-full bg-white/5 text-sm" aria-label="Call SHRI G AQUA">
+      <div className="flex items-center gap-2 mx-auto max-w-md rounded-full border border-white/10 bg-black/70 backdrop-blur-xl px-2 py-2">
+        <a href={`tel:${PHONE_PRIMARY}`} className="flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-full bg-white/5 text-sm" aria-label="Call SHRI G AQUA">
           <Phone size={16}/> Call
         </a>
-        <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 h-11 rounded-full text-sm" style={{ background: 'rgba(103,232,249,0.14)', color: 'var(--aqua)' }} aria-label="WhatsApp SHRI G AQUA">
+        <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-full text-sm" style={{ background: 'rgba(103,232,249,0.14)', color: 'var(--aqua)' }} aria-label="WhatsApp SHRI G AQUA">
           <MessageCircle size={16}/> WhatsApp
         </a>
-        <a href="#contact" className="h-11 w-11 flex items-center justify-center rounded-full bg-white/5" aria-label="More contact options">
+        <a href="#contact" className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-white/5" aria-label="More contact options">
           <ArrowUpRight size={16}/>
         </a>
       </div>
@@ -158,102 +341,142 @@ function ActionRail() {
   )
 }
 
-/* ------- Selector screen ------- */
+/* ============================================================
+   Selector — measured vertical layout, no overlap
+   Desktop (>= md):
+     [ header ]
+     eyebrow
+     heading         (top zone)
+     copy
+     ---- (guaranteed gap) ----
+     [ product stage w/ prev|current|next ]
+     ---- (gap) ----
+     CTA + pips
+============================================================ */
 function Selector({ index, setIndex, onExplore }) {
   const total = PRODUCTS.length
   const prevI = (index - 1 + total) % total
   const nextI = (index + 1) % total
   const current = PRODUCTS[index]
 
-  const positionOf = (i) => {
-    if (i === index) return 'prod-center'
-    if (i === prevI) return 'prod-left'
-    if (i === nextI) return 'prod-right'
-    return 'prod-far'
-  }
-
   return (
     <section id="products" className="relative w-full min-h-[100svh] stage grain overflow-hidden">
       <div className="stars" />
 
-      {/* Kicker line */}
-      <div className="absolute top-24 sm:top-28 left-0 right-0 z-10 flex flex-col items-center text-center px-6">
-        <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">
-          {current.kicker}
+      <div className="relative z-10 min-h-[100svh] flex flex-col pt-[92px] sm:pt-[104px] pb-[128px] md:pb-24 px-4 sm:px-6">
+        {/* Text zone */}
+        <div className="text-center">
+          <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-white/50">
+            {current.kicker}
+          </div>
+          <h1
+            key={`title-${current.id}`}
+            className="selector-title font-serif-ed mt-3 sm:mt-4 text-4xl sm:text-5xl md:text-6xl lg:text-[64px] leading-[1.05] max-w-4xl mx-auto enter enter-active"
+          >
+            {current.heading}
+          </h1>
+          <p
+            key={`copy-${current.id}`}
+            className="mt-4 sm:mt-5 max-w-xl mx-auto text-sm sm:text-base text-white/60 leading-relaxed enter enter-active"
+            style={{ transitionDelay: '120ms' }}
+          >
+            {current.copy}
+          </p>
         </div>
-        <h1
-          key={`title-${current.id}`}
-          className="selector-title font-serif-ed mt-4 text-5xl sm:text-6xl md:text-7xl leading-[1.04] max-w-4xl enter enter-active"
-        >
-          {current.heading}
-        </h1>
-        <p key={`copy-${current.id}`} className="mt-5 max-w-xl text-sm sm:text-base text-white/60 leading-relaxed enter enter-active" style={{ transitionDelay: '120ms' }}>
-          {current.copy}
-        </p>
-      </div>
 
-      {/* Product stage */}
-      <div className="absolute inset-x-0 bottom-[16svh] sm:bottom-[14svh] z-10 flex items-end justify-center">
-        <div className="relative w-full h-[62svh] sm:h-[68svh] flex items-center justify-center">
-          {PRODUCTS.map((p, i) => (
+        {/* Product stage: takes remaining vertical space */}
+        <div className="relative flex-1 flex items-center justify-center mt-6 sm:mt-8 md:mt-10 min-h-[280px]">
+          {/* Adjacent (left) — partially visible, blurred */}
+          <div className="pointer-events-auto absolute left-[-12%] sm:left-[-6%] md:left-[2%] top-1/2 -translate-y-1/2 w-[36vw] max-w-[280px] hidden sm:block">
             <button
-              key={p.id}
-              onClick={() => setIndex(i)}
-              className={`absolute transition-cinema ${positionOf(i)}`}
-              style={{ willChange: 'transform, filter, opacity' }}
-              aria-label={`Select ${p.name}`}
-              tabIndex={i === index ? -1 : 0}
+              onClick={() => setIndex(prevI)}
+              className="w-full transition-cinema opacity-40 hover:opacity-70"
+              style={{ filter: 'blur(4px)' }}
+              aria-label={`Select ${PRODUCTS[prevI].name}`}
             >
-              <ProductPlanet
-                product={p}
-                size={typeof window !== 'undefined' && window.innerWidth < 640 ? 300 : 480}
-              />
+              <div className="w-full" style={{ aspectRatio: PRODUCTS[prevI].aspect }}>
+                <ProductVisual product={PRODUCTS[prevI]} dim />
+              </div>
             </button>
-          ))}
+          </div>
+
+          {/* Selected product — sharp, fully visible, centered */}
+          <div
+            key={`prod-${current.id}`}
+            className="relative w-[86vw] max-w-[520px] md:max-w-[560px] lg:max-w-[600px] transition-cinema"
+            style={{ aspectRatio: current.aspect }}
+          >
+            <ProductVisual product={current} />
+          </div>
+
+          {/* Adjacent (right) */}
+          <div className="pointer-events-auto absolute right-[-12%] sm:right-[-6%] md:right-[2%] top-1/2 -translate-y-1/2 w-[36vw] max-w-[280px] hidden sm:block">
+            <button
+              onClick={() => setIndex(nextI)}
+              className="w-full transition-cinema opacity-40 hover:opacity-70"
+              style={{ filter: 'blur(4px)' }}
+              aria-label={`Select ${PRODUCTS[nextI].name}`}
+            >
+              <div className="w-full" style={{ aspectRatio: PRODUCTS[nextI].aspect }}>
+                <ProductVisual product={PRODUCTS[nextI]} dim />
+              </div>
+            </button>
+          </div>
+
+          {/* Chevron controls */}
+          <button
+            className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-20 btn-icon"
+            onClick={() => setIndex(prevI)}
+            aria-label="Previous product"
+          >
+            <ChevronLeft size={18}/>
+          </button>
+          <button
+            className="absolute right-1 sm:right-4 top-1/2 -translate-y-1/2 z-20 btn-icon"
+            onClick={() => setIndex(nextI)}
+            aria-label="Next product"
+          >
+            <ChevronRight size={18}/>
+          </button>
         </div>
-      </div>
 
-      {/* Chevron controls */}
-      <button
-        className="absolute left-3 sm:left-8 top-1/2 -translate-y-1/2 z-20 btn-icon"
-        onClick={() => setIndex(prevI)}
-        aria-label="Previous product"
-      >
-        <ChevronLeft size={18}/>
-      </button>
-      <button
-        className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 z-20 btn-icon"
-        onClick={() => setIndex(nextI)}
-        aria-label="Next product"
-      >
-        <ChevronRight size={18}/>
-      </button>
-
-      {/* CTA + product name */}
-      <div className="absolute inset-x-0 bottom-24 md:bottom-10 z-20 flex flex-col items-center gap-4 px-6">
-        <div className="text-white/50 text-xs uppercase tracking-[0.32em]">{current.name}</div>
-        <button onClick={onExplore} className="btn-primary" style={{ borderColor: `${current.accent}55`, boxShadow: `0 0 30px ${current.accent}22` }}>
-          {current.cta} <ArrowUpRight size={15}/>
-        </button>
-
-        {/* Product pips */}
-        <div className="flex items-center gap-2 mt-1">
-          {PRODUCTS.map((p, i) => (
-            <button key={p.id} onClick={() => setIndex(i)} aria-label={p.name}
-              className="h-1.5 rounded-full transition-all"
-              style={{
-                width: i === index ? 28 : 10,
-                background: i === index ? current.accent : 'rgba(255,255,255,0.22)'
-              }}
-            />
-          ))}
+        {/* CTA + name + pips */}
+        <div className="mt-6 md:mt-8 flex flex-col items-center gap-4">
+          <div className="text-white/50 text-[11px] uppercase tracking-[0.32em]">{current.name}</div>
+          <button
+            onClick={onExplore}
+            className="btn-primary"
+            style={{ borderColor: `${current.accent}55`, boxShadow: `0 0 30px ${current.accent}22` }}
+          >
+            {current.cta} <ArrowUpRight size={15}/>
+          </button>
+          <div className="flex items-center gap-2">
+            {PRODUCTS.map((p, i) => (
+              <button
+                key={p.id}
+                onClick={() => setIndex(i)}
+                aria-label={p.name}
+                className="h-1.5 rounded-full transition-all"
+                style={{
+                  width: i === index ? 28 : 10,
+                  background: i === index ? current.accent : 'rgba(255,255,255,0.22)'
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-/* ------- Expanded product experience (scroll-driven) ------- */
+/* ============================================================
+   ExpandedProduct — clean inspection layout
+   * 300vh sticky container (~3 meaningful states)
+   * Only ONE active state visible at a time
+   * Desktop: product left/center, single info panel on right
+   * Mobile: product upper, single info panel below
+============================================================ */
 function ExpandedProduct({ product, onBack }) {
   const wrapRef = useRef(null)
   const [progress, setProgress] = useState(0)
@@ -266,7 +489,7 @@ function ExpandedProduct({ product, onBack }) {
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
         const rect = el.getBoundingClientRect()
-        const h = el.offsetHeight - window.innerHeight
+        const h = Math.max(1, el.offsetHeight - window.innerHeight)
         const p = Math.min(1, Math.max(0, -rect.top / h))
         setProgress(p)
       })
@@ -281,110 +504,153 @@ function ExpandedProduct({ product, onBack }) {
     }
   }, [])
 
-  // Phase math: 0-.2 assembled, .2-.45 open, .45-.7 exploded, .7-.85 reassemble, .85-1 working
-  const phaseScale = 1 + Math.sin(progress * Math.PI) * 0.05
-  const exploded = Math.max(0, Math.min(1, (progress - 0.2) / 0.5)) * (progress < 0.75 ? 1 : Math.max(0, 1 - (progress - 0.75) / 0.15))
-  const workingGlow = Math.max(0, (progress - 0.82) / 0.18)
-
-  const parts = product.parts
+  const total = product.stages.length
+  const activeIndex = Math.min(total - 1, Math.floor(progress * total * 0.999))
+  const activeStage = product.stages[activeIndex]
+  const workingGlow = activeIndex === total - 1 ? Math.min(1, (progress - (total - 1) / total) * total) : 0
 
   return (
-    <section className="relative w-full stage grain" ref={wrapRef} style={{ height: '360vh' }}>
+    <section id="expanded" className="relative w-full stage grain" ref={wrapRef} style={{ height: '300vh' }}>
       <div className="stars" />
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
         {/* Back control */}
         <button
           onClick={onBack}
-          className="absolute top-5 left-5 sm:top-7 sm:left-8 z-40 btn-ghost group"
+          className="absolute top-5 left-5 sm:top-7 sm:left-8 z-40 btn-ghost"
           aria-label="Back to selector"
         >
           <ChevronLeft size={16}/> Back
         </button>
 
-        {/* Product title relocated */}
-        <div className="absolute top-6 sm:top-8 right-0 left-0 z-30 flex flex-col items-center pointer-events-none px-6">
+        {/* Header: kicker + product name (does not overlap product) */}
+        <div className="absolute top-6 sm:top-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center px-6 pointer-events-none">
           <div className="text-[11px] uppercase tracking-[0.28em] text-white/45">{product.kicker}</div>
           <h2 className="font-serif-ed text-2xl sm:text-3xl mt-1">{product.name}</h2>
         </div>
 
-        {/* Central planet with pulse of aqua on working state */}
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ transform: `scale(${phaseScale})`, transition: 'transform 200ms linear' }}
-        >
-          <div className="relative">
-            <ProductPlanet product={product} size={typeof window !== 'undefined' && window.innerWidth < 640 ? 260 : 420} />
-            {/* Working state glow */}
-            <div
-              className="absolute inset-0 rounded-full pointer-events-none"
-              style={{
-                boxShadow: `0 0 ${80 + workingGlow * 80}px ${20 + workingGlow * 40}px ${product.accent}${Math.round(workingGlow*80).toString(16).padStart(2,'0')}`,
-                opacity: workingGlow
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Exploded parts ring */}
-        {parts.map((part, i) => {
-          const angle = (i / parts.length) * Math.PI * 2 - Math.PI / 2
-          const radius = 220 + exploded * 160
-          const x = Math.cos(angle) * radius
-          const y = Math.sin(angle) * radius * 0.75
-          const active = exploded > 0.15
-          return (
-            <div
-              key={i}
-              className="absolute left-1/2 top-1/2 z-20 pointer-events-none"
-              style={{
-                transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
-                opacity: active ? exploded : 0,
-                transition: 'opacity 300ms ease'
-              }}
-            >
-              <div className="w-2 h-2 rounded-full mx-auto" style={{ background: product.accent, boxShadow: `0 0 12px ${product.accent}` }} />
-              <div className="mt-2 w-48 text-center">
-                <div className="text-[10px] uppercase tracking-[0.24em] text-white/50">Stage {String(i+1).padStart(2,'0')}</div>
-                <div className="text-sm mt-1">{part.label}</div>
-                <div className="text-xs text-white/50 mt-1 hidden sm:block">{part.copy}</div>
-              </div>
+        {/* Content grid: product left, single panel right (desktop) / stacked (mobile) */}
+        <div className="absolute inset-0 pt-24 pb-28 md:pb-16 px-6 md:px-12 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-center">
+          {/* Product visual */}
+          <div className="md:col-span-7 lg:col-span-7 flex items-center justify-center h-full relative">
+            <div className="relative w-full max-w-[520px] md:max-w-[560px]" style={{ aspectRatio: product.aspect }}>
+              <ProductVisual product={product} />
+              {workingGlow > 0 && (
+                <div
+                  className="absolute inset-0 pointer-events-none rounded-3xl"
+                  style={{
+                    boxShadow: `0 0 ${60 + workingGlow * 80}px ${20 + workingGlow * 40}px ${product.accent}${Math.round(workingGlow*90).toString(16).padStart(2,'0')}`,
+                    opacity: workingGlow * 0.8
+                  }}
+                />
+              )}
             </div>
-          )
-        })}
-
-        {/* Bottom progress + scroll hint */}
-        <div className="absolute bottom-24 md:bottom-8 left-0 right-0 z-30 flex flex-col items-center gap-3 px-6">
-          <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">
-            {progress < 0.05 ? 'Scroll to explore ↓' : progress > 0.9 ? 'Working state' : progress > 0.7 ? 'Reassembling' : progress > 0.4 ? 'Exploded view' : 'Opening'}
           </div>
-          <div className="w-40 h-[2px] bg-white/10 rounded-full overflow-hidden">
-            <div className="h-full" style={{ width: `${progress * 100}%`, background: product.accent }} />
+
+          {/* Info panel — only current stage visible */}
+          <div className="md:col-span-5 lg:col-span-5 flex md:h-full items-center">
+            <div className="w-full max-w-md md:pl-4 relative min-h-[140px]">
+              {product.stages.map((s, i) => (
+                <div
+                  key={i}
+                  className="absolute inset-0 transition-opacity duration-500"
+                  style={{ opacity: i === activeIndex ? 1 : 0, pointerEvents: i === activeIndex ? 'auto' : 'none' }}
+                  aria-hidden={i !== activeIndex}
+                >
+                  <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">
+                    Stage {String(i + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+                  </div>
+                  <h3 className="font-serif-ed text-3xl sm:text-4xl mt-2">{s.title}</h3>
+                  <p className="mt-4 text-sm sm:text-base text-white/65 leading-relaxed">{s.body}</p>
+                  {product.id === 'commercial' && i === 0 && (
+                    <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="btn-primary mt-6" style={{ borderColor: `${product.accent}55` }}>
+                      Plan your capacity <ArrowUpRight size={14}/>
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Right side descriptor for larger screens */}
-        <div className="hidden lg:block absolute right-10 top-1/2 -translate-y-1/2 w-72 z-30">
-          <div className="text-[11px] uppercase tracking-[0.28em] text-white/45 mb-3">About the system</div>
-          <p className="text-sm text-white/70 leading-relaxed">{product.copy}</p>
-          {product.id === 'commercial' && (
-            <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="btn-primary mt-6" style={{ borderColor: `${product.accent}55` }}>
-              Plan your capacity <ArrowUpRight size={14}/>
-            </a>
-          )}
+        {/* Bottom progress rail + stage tabs */}
+        <div className="absolute bottom-24 md:bottom-8 left-0 right-0 z-30 flex flex-col items-center gap-3 px-6">
+          <div className="flex items-center gap-2">
+            {product.stages.map((s, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div
+                  className="h-1.5 rounded-full transition-all"
+                  style={{
+                    width: i === activeIndex ? 28 : 10,
+                    background: i === activeIndex ? product.accent : 'rgba(255,255,255,0.22)'
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="text-[10px] uppercase tracking-[0.28em] text-white/45">
+            {activeStage.title} · scroll to continue
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-/* ------- Contact section ------- */
+/* ============================================================
+   Appliance Care section (#care) — compact, restrained
+============================================================ */
+function ApplianceCare() {
+  const items = [
+    {
+      title: 'Washing machine service',
+      body: 'Diagnostics, repair and maintenance for top-load and front-load machines — at your home in Mathura.',
+      Icon: WashingMachine
+    },
+    {
+      title: 'Refrigerator service',
+      body: 'Cooling issues, gas top-up, thermostat and general upkeep across single-door, double-door and side-by-side units.',
+      Icon: Refrigerator
+    }
+  ]
+  return (
+    <section id="care" className="relative stage grain px-6 py-20 sm:py-28 scroll-mt-24">
+      <div className="stars" />
+      <div className="relative z-10 max-w-5xl mx-auto">
+        <div className="text-center">
+          <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">Appliance care</div>
+          <h2 className="font-serif-ed mt-3 text-4xl sm:text-5xl leading-[1.05]">Everyday appliances, kept working.</h2>
+          <p className="mt-4 text-sm sm:text-base text-white/60 max-w-xl mx-auto">Alongside water and cooling, SHRI G AQUA supports the appliances your home relies on.</p>
+        </div>
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {items.map((it, i) => (
+            <div key={i} className="rounded-2xl border border-white/10 p-6 sm:p-7 bg-white/[0.02] hover:border-white/25 transition">
+              <div className="flex items-center gap-3">
+                <div className="btn-icon" aria-hidden="true"><it.Icon size={16}/></div>
+                <div className="font-serif-ed text-2xl">{it.title}</div>
+              </div>
+              <p className="mt-4 text-sm text-white/60 leading-relaxed">{it.body}</p>
+              <div className="mt-6 flex gap-2">
+                <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary"><Phone size={14}/> Call</a>
+                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="btn-primary" style={{ borderColor: 'rgba(103,232,249,0.35)', background: 'rgba(103,232,249,0.10)' }}><MessageCircle size={14}/> WhatsApp</a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   Contact section (preserved)
+============================================================ */
 function ContactSection() {
   return (
-    <section id="contact" className="relative stage grain px-6 py-24 sm:py-32">
+    <section id="contact" className="relative stage grain px-6 py-24 sm:py-32 scroll-mt-24">
       <div className="stars" />
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">Contact</div>
-        <h2 className="font-serif-ed text-5xl sm:text-6xl md:text-7xl mt-4 leading-[1.05]">
+        <h2 className="font-serif-ed text-4xl sm:text-5xl md:text-6xl mt-4 leading-[1.05]">
           The service you need,<br/> one call away.
         </h2>
         <p className="mt-6 text-white/60 max-w-lg mx-auto">
@@ -430,7 +696,7 @@ function ContactSection() {
         </div>
 
         <div className="mt-16 hairline max-w-md mx-auto" />
-        <p className="mt-8 text-xs text-white/40">
+        <p className="mt-8 text-xs text-white/40 pb-24 md:pb-0">
           © {new Date().getFullYear()} SHRI G AQUA · Mathura, Uttar Pradesh
         </p>
       </div>
@@ -442,7 +708,7 @@ function ContactSection() {
 function MobileMenu({ open, onClose }) {
   if (!open) return null
   return (
-    <div className="md:hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col">
+    <div className="md:hidden fixed inset-0 z-50 bg-black/92 backdrop-blur-2xl flex flex-col">
       <div className="flex items-center justify-between px-5 pt-6">
         <span className="font-serif-ed text-xl">SHRI G <span style={{ color: 'var(--aqua)' }}>AQUA</span></span>
         <button onClick={onClose} className="btn-icon" aria-label="Close menu"><X size={18}/></button>
@@ -469,7 +735,6 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const current = PRODUCTS[index]
 
-  // Keyboard navigation on selector
   useEffect(() => {
     if (expanded) return
     const onKey = (e) => {
@@ -483,7 +748,6 @@ function App() {
 
   const handleExplore = useCallback(() => {
     setExpanded(true)
-    // Give layout a beat, then scroll to expanded section start
     requestAnimationFrame(() => {
       const el = document.getElementById('expanded')
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -503,22 +767,18 @@ function App() {
       <TopBar onMenu={() => setMenuOpen(true)} hidden={expanded} />
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      {/* Selector always mounted; when expanded we push it above and let user scroll into expanded */}
       <Selector index={index} setIndex={setIndex} onExplore={handleExplore} />
 
-      {expanded && (
-        <div id="expanded">
-          <ExpandedProduct product={current} onBack={handleBack} />
-        </div>
-      )}
+      {expanded && <ExpandedProduct product={current} onBack={handleBack} />}
 
+      <ApplianceCare />
       <ContactSection />
 
       <ActionRail />
       <MobileDock />
 
-      {/* Crawlable content for SEO (visually hidden but readable) */}
-      <div className="sr-only" aria-hidden="false">
+      {/* Crawlable content */}
+      <div className="sr-only">
         <h2>SHRI G AQUA — Mathura water and cooling specialists</h2>
         <p>Commercial RO systems planned to required capacity for businesses, malls, institutions and large complexes in Mathura, Uttar Pradesh. Complete supply, installation and ongoing service.</p>
         <p>Domestic RO sales, installation and maintenance across Mathura.</p>
