@@ -1,7 +1,13 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { Phone, MessageCircle, Mail, MapPin, ChevronLeft, ChevronRight, ArrowUpRight, X, Menu, WashingMachine, Refrigerator } from 'lucide-react'
+import {
+  PHONE_PRIMARY, PHONE_PRIMARY_DISPLAY, PHONE_ALT, PHONE_ALT_DISPLAY,
+  EMAIL, ADDRESS_LINE, MAPS_URL,
+  WHATSAPP_URL, WHATSAPP_COMMERCIAL, WHATSAPP_DOMESTIC, WHATSAPP_AC, WHATSAPP_WM, WHATSAPP_FRIDGE
+} from '@/lib/business'
 
 /* ============================================================
    SHRI G AQUA — Revision 01
@@ -17,20 +23,7 @@ import { Phone, MessageCircle, Mail, MapPin, ChevronLeft, ChevronRight, ArrowUpR
    - Appliance Care section (#care) implemented.
 ============================================================ */
 
-const PHONE_PRIMARY = '+918449691018'
-const PHONE_PRIMARY_DISPLAY = '+91 84496 91018'
-const PHONE_ALT = '+918460514208'
-const PHONE_ALT_DISPLAY = '+91 84605 14208'
-const waLink = (msg) => `https://wa.me/918449691018?text=${encodeURIComponent(msg)}`
-const WHATSAPP_URL = waLink('Hello SHRI G AQUA, I would like details about your services.')
-const WHATSAPP_COMMERCIAL = waLink('Hello SHRI G AQUA, I want to discuss a customized Commercial RO system for my requirement.')
-const WHATSAPP_DOMESTIC = waLink('Hello SHRI G AQUA, I need details about Domestic RO sales, installation or service.')
-const WHATSAPP_AC = waLink('Hello SHRI G AQUA, I need details about Split AC installation or service.')
-const WHATSAPP_WM = waLink('Hello SHRI G AQUA, I need washing machine service in Mathura.')
-const WHATSAPP_FRIDGE = waLink('Hello SHRI G AQUA, I need refrigerator service in Mathura.')
-const EMAIL = 'shrigmathura@gmail.com'
-const ADDRESS_LINE = '301 Krishna Vihar Colony, Near Diksha Public School, BSA Road, Bypass, Mathura – 281001, Uttar Pradesh'
-const MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ADDRESS_LINE)}`
+/* Business config imported from @/lib/business */
 
 /* ------- Product schematic SVGs (honest posters until real assets are supplied) ------- */
 function DomesticROSvg({ accent = '#7dd3fc' }) {
@@ -394,7 +387,7 @@ function MobileDock() {
         <a href={`tel:${PHONE_PRIMARY}`} className="flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-full bg-white/5 text-sm" aria-label="Call SHRI G AQUA">
           <Phone size={16}/> Call
         </a>
-        <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-full text-sm" style={{ background: 'rgba(103,232,249,0.14)', color: 'var(--aqua)' }} aria-label="WhatsApp SHRI G AQUA">
+        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-full text-sm" style={{ background: 'rgba(103,232,249,0.14)', color: 'var(--aqua)' }} aria-label="WhatsApp SHRI G AQUA">
           <MessageCircle size={16}/> WhatsApp
         </a>
         <a href="#contact" className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-white/5" aria-label="More contact options">
@@ -410,7 +403,7 @@ function ActionRail() {
   return (
     <div className="hidden md:flex fixed right-6 bottom-6 z-40 flex-col gap-2">
       <a href={`tel:${PHONE_PRIMARY}`} className="btn-icon" aria-label="Call"><Phone size={16}/></a>
-      <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="btn-icon" style={{ background: 'rgba(103,232,249,0.10)', borderColor: 'rgba(103,232,249,0.35)' }} aria-label="WhatsApp">
+      <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-icon" style={{ background: 'rgba(103,232,249,0.10)', borderColor: 'rgba(103,232,249,0.35)' }} aria-label="WhatsApp">
         <MessageCircle size={16} style={{ color: 'var(--aqua)' }} />
       </a>
     </div>
@@ -531,7 +524,7 @@ function Selector({ index, setIndex, onExplore }) {
               <a
                 href={current.secondaryCta.href}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="btn-primary"
                 style={{ borderColor: 'rgba(103,232,249,0.45)', background: 'rgba(103,232,249,0.12)', color: 'var(--aqua)' }}
               >
@@ -539,6 +532,14 @@ function Selector({ index, setIndex, onExplore }) {
               </a>
             )}
           </div>
+          {current.id === 'commercial' && (
+            <Link
+              href="/commercial-ro"
+              className="mt-1 text-[11px] uppercase tracking-[0.28em] text-white/60 hover:text-white transition inline-flex items-center gap-1.5 min-h-[44px]"
+            >
+              View capacities &amp; process <ArrowUpRight size={12}/>
+            </Link>
+          )}
           <div className="flex items-center gap-2">
             {PRODUCTS.map((p, i) => (
               <button
@@ -651,9 +652,14 @@ function ExpandedProduct({ product, onBack }) {
                   <h3 className="font-serif-ed text-3xl sm:text-4xl mt-2">{s.title}</h3>
                   <p className="mt-4 text-sm sm:text-base text-white/65 leading-relaxed">{s.body}</p>
                   {product.id === 'commercial' && i === 0 && (
-                    <a href={product.whatsapp} target="_blank" rel="noreferrer" className="btn-primary mt-6" style={{ borderColor: `${product.accent}55` }}>
-                      Plan your capacity <ArrowUpRight size={14}/>
-                    </a>
+                    <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <a href={product.whatsapp} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ borderColor: `${product.accent}55` }}>
+                        Plan your capacity <ArrowUpRight size={14}/>
+                      </a>
+                      <Link href="/commercial-ro" className="text-[11px] uppercase tracking-[0.28em] text-white/65 hover:text-white transition inline-flex items-center gap-1.5 min-h-[44px]">
+                        View capacities &amp; process <ArrowUpRight size={12}/>
+                      </Link>
+                    </div>
                   )}
                 </div>
               ))}
@@ -722,7 +728,7 @@ function ApplianceCare() {
               <p className="mt-4 text-sm text-white/60 leading-relaxed">{it.body}</p>
               <div className="mt-6 flex gap-2">
                 <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary"><Phone size={14}/> Call</a>
-                <a href={it.whatsapp} target="_blank" rel="noreferrer" className="btn-primary" style={{ borderColor: 'rgba(103,232,249,0.35)', background: 'rgba(103,232,249,0.10)' }}><MessageCircle size={14}/> WhatsApp</a>
+                <a href={it.whatsapp} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ borderColor: 'rgba(103,232,249,0.35)', background: 'rgba(103,232,249,0.10)' }}><MessageCircle size={14}/> WhatsApp</a>
               </div>
             </div>
           ))}
@@ -756,7 +762,7 @@ function ContactSection() {
               <div className="text-sm">{PHONE_PRIMARY_DISPLAY}</div>
             </div>
           </a>
-          <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="group flex items-center gap-3 rounded-2xl border border-white/10 p-4 hover:border-white/30 transition">
+          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 rounded-2xl border border-white/10 p-4 hover:border-white/30 transition">
             <div className="btn-icon" style={{ background: 'rgba(103,232,249,0.12)', borderColor: 'rgba(103,232,249,0.35)' }}><MessageCircle size={16} style={{ color: 'var(--aqua)' }}/></div>
             <div>
               <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">WhatsApp</div>
@@ -777,7 +783,7 @@ function ContactSection() {
               <div className="text-sm break-all">{EMAIL}</div>
             </div>
           </a>
-          <a href={MAPS_URL} target="_blank" rel="noreferrer" className="group sm:col-span-2 flex items-start gap-3 rounded-2xl border border-white/10 p-4 hover:border-white/30 transition text-left">
+          <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="group sm:col-span-2 flex items-start gap-3 rounded-2xl border border-white/10 p-4 hover:border-white/30 transition text-left">
             <div className="btn-icon shrink-0"><MapPin size={16}/></div>
             <div>
               <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Address · Get directions</div>
@@ -811,7 +817,7 @@ function MobileMenu({ open, onClose }) {
       </div>
       <div className="px-5 pb-safe grid grid-cols-2 gap-3">
         <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary justify-center"><Phone size={15}/> Call</a>
-        <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="btn-primary justify-center" style={{ borderColor: 'rgba(103,232,249,0.4)', background: 'rgba(103,232,249,0.10)' }}><MessageCircle size={15}/> WhatsApp</a>
+        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-primary justify-center" style={{ borderColor: 'rgba(103,232,249,0.4)', background: 'rgba(103,232,249,0.10)' }}><MessageCircle size={15}/> WhatsApp</a>
       </div>
     </div>
   )
