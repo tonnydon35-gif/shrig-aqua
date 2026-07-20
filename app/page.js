@@ -21,7 +21,13 @@ const PHONE_PRIMARY = '+918449691018'
 const PHONE_PRIMARY_DISPLAY = '+91 84496 91018'
 const PHONE_ALT = '+918460514208'
 const PHONE_ALT_DISPLAY = '+91 84605 14208'
-const WHATSAPP_URL = `https://wa.me/918449691018?text=${encodeURIComponent('Hello SHRI G AQUA, I would like details about your services.')}`
+const waLink = (msg) => `https://wa.me/918449691018?text=${encodeURIComponent(msg)}`
+const WHATSAPP_URL = waLink('Hello SHRI G AQUA, I would like details about your services.')
+const WHATSAPP_COMMERCIAL = waLink('Hello SHRI G AQUA, I want to discuss a customized Commercial RO system for my requirement.')
+const WHATSAPP_DOMESTIC = waLink('Hello SHRI G AQUA, I need details about Domestic RO sales, installation or service.')
+const WHATSAPP_AC = waLink('Hello SHRI G AQUA, I need details about Split AC installation or service.')
+const WHATSAPP_WM = waLink('Hello SHRI G AQUA, I need washing machine service in Mathura.')
+const WHATSAPP_FRIDGE = waLink('Hello SHRI G AQUA, I need refrigerator service in Mathura.')
 const EMAIL = 'shrigmathura@gmail.com'
 const ADDRESS_LINE = '301 Krishna Vihar Colony, Near Diksha Public School, BSA Road, Bypass, Mathura – 281001, Uttar Pradesh'
 const MAPS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ADDRESS_LINE)}`
@@ -67,56 +73,122 @@ function DomesticROSvg({ accent = '#7dd3fc' }) {
 
 function CommercialROSvg({ accent = '#67e8f9' }) {
   return (
-    <svg viewBox="0 0 640 520" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Commercial RO plant" style={{ display: 'block' }}>
+    <svg viewBox="0 0 720 520" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Commercial RO plant (illustration)" style={{ display: 'block' }}>
       <defs>
-        <linearGradient id="cro-frame" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="cro-tank" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#0d1422" />
           <stop offset="1" stopColor="#060a12" />
         </linearGradient>
       </defs>
-      <ellipse cx="320" cy="495" rx="260" ry="12" fill={accent} opacity="0.14" />
-      {/* Skid frame */}
-      <rect x="40" y="140" width="560" height="320" rx="14" fill="url(#cro-frame)" stroke={accent} strokeOpacity="0.45" strokeWidth="1.2" />
-      {/* Frame cross-braces */}
-      <line x1="40" y1="180" x2="600" y2="180" stroke={accent} strokeOpacity="0.14" />
-      <line x1="40" y1="420" x2="600" y2="420" stroke={accent} strokeOpacity="0.14" />
-      {/* Pressure vessels (RO membranes horizontal) */}
-      <g stroke={accent} strokeOpacity="0.5" strokeWidth="1.2" fill="none">
-        <rect x="80" y="210" width="420" height="48" rx="24" />
-        <rect x="80" y="270" width="420" height="48" rx="24" />
-        <rect x="80" y="330" width="420" height="48" rx="24" />
-        <line x1="120" y1="210" x2="120" y2="258" strokeOpacity="0.18" />
-        <line x1="460" y1="210" x2="460" y2="258" strokeOpacity="0.18" />
-        <line x1="120" y1="270" x2="120" y2="318" strokeOpacity="0.18" />
-        <line x1="460" y1="270" x2="460" y2="318" strokeOpacity="0.18" />
+      {/* Ground shadow */}
+      <ellipse cx="360" cy="500" rx="300" ry="10" fill={accent} opacity="0.14" />
+
+      {/* Skid / pipe frame */}
+      <g stroke={accent} strokeOpacity="0.32" strokeWidth="1" fill="none">
+        <rect x="30" y="80" width="660" height="390" rx="6" />
+        <line x1="30" y1="470" x2="30" y2="490" />
+        <line x1="690" y1="470" x2="690" y2="490" />
+        <line x1="360" y1="470" x2="360" y2="490" />
       </g>
-      {/* Piping manifold on the right */}
+
+      {/* Header manifold (top pipe) */}
+      <g stroke={accent} strokeOpacity="0.45" strokeWidth="1.4" fill="none">
+        <line x1="60" y1="110" x2="660" y2="110" />
+        <circle cx="60" cy="110" r="4" />
+        <circle cx="660" cy="110" r="4" />
+      </g>
+
+      {/* Vertical pretreatment tanks (left) */}
+      <g stroke={accent} strokeOpacity="0.55" strokeWidth="1.2" fill="url(#cro-tank)">
+        {/* Tank 1 */}
+        <path d="M60 160 Q60 140 80 140 L120 140 Q140 140 140 160 L140 400 Q140 420 120 420 L80 420 Q60 420 60 400 Z" />
+        {/* Tank 2 */}
+        <path d="M170 160 Q170 140 190 140 L230 140 Q250 140 250 160 L250 400 Q250 420 230 420 L190 420 Q170 420 170 400 Z" />
+        {/* Tank 3 */}
+        <path d="M280 160 Q280 140 300 140 L340 140 Q360 140 360 160 L360 400 Q360 420 340 420 L300 420 Q280 420 280 400 Z" />
+      </g>
+      {/* Tank labels + level marks */}
+      <g stroke={accent} strokeOpacity="0.22" strokeWidth="0.8">
+        <line x1="70" y1="200" x2="130" y2="200" />
+        <line x1="70" y1="280" x2="130" y2="280" />
+        <line x1="70" y1="360" x2="130" y2="360" />
+        <line x1="180" y1="200" x2="240" y2="200" />
+        <line x1="180" y1="280" x2="240" y2="280" />
+        <line x1="180" y1="360" x2="240" y2="360" />
+        <line x1="290" y1="200" x2="350" y2="200" />
+        <line x1="290" y1="280" x2="350" y2="280" />
+        <line x1="290" y1="360" x2="350" y2="360" />
+      </g>
+      {/* Tank top hatches */}
+      <g stroke={accent} strokeOpacity="0.5" strokeWidth="1" fill="#03060c">
+        <rect x="88" y="132" width="24" height="8" rx="1" />
+        <rect x="198" y="132" width="24" height="8" rx="1" />
+        <rect x="308" y="132" width="24" height="8" rx="1" />
+      </g>
+      {/* Connecting pipes between tanks (bottom) */}
       <g stroke={accent} strokeOpacity="0.4" strokeWidth="1.2" fill="none">
-        <path d="M500 234 L540 234 L540 354 L500 354" />
-        <path d="M500 294 L560 294" />
-        <circle cx="560" cy="294" r="6" />
+        <path d="M140 430 L170 430" />
+        <path d="M250 430 L280 430" />
       </g>
-      {/* High-pressure pump on left */}
-      <g stroke={accent} strokeOpacity="0.45" strokeWidth="1.2" fill="none">
-        <rect x="58" y="268" width="18" height="52" rx="3" />
-        <circle cx="67" cy="294" r="9" />
+
+      {/* Pump module (bottom, between tanks and membranes) */}
+      <g stroke={accent} strokeOpacity="0.55" strokeWidth="1.2" fill="url(#cro-tank)">
+        <rect x="378" y="360" width="70" height="60" rx="4" />
       </g>
-      {/* Control panel (top-right) */}
+      <g stroke={accent} strokeOpacity="0.55" strokeWidth="1.2" fill="none">
+        <circle cx="413" cy="390" r="18" />
+        <circle cx="413" cy="390" r="6" fill={accent} fillOpacity="0.5" />
+        <line x1="360" y1="430" x2="378" y2="390" />
+        <line x1="448" y1="390" x2="470" y2="390" />
+      </g>
+      <text x="413" y="352" textAnchor="middle" fill={accent} fillOpacity="0.7" fontSize="9" fontFamily="Inter, sans-serif" letterSpacing="0.18em">PUMP</text>
+
+      {/* Horizontal membrane vessel rack (right) */}
+      <g stroke={accent} strokeOpacity="0.55" strokeWidth="1.2" fill="url(#cro-tank)">
+        <rect x="400" y="180" width="270" height="32" rx="16" />
+        <rect x="400" y="222" width="270" height="32" rx="16" />
+        <rect x="400" y="264" width="270" height="32" rx="16" />
+      </g>
+      {/* End caps + inter-vessel pipes */}
+      <g stroke={accent} strokeOpacity="0.4" strokeWidth="1.2" fill="none">
+        <circle cx="400" cy="196" r="6" />
+        <circle cx="670" cy="196" r="6" />
+        <circle cx="400" cy="238" r="6" />
+        <circle cx="670" cy="238" r="6" />
+        <circle cx="400" cy="280" r="6" />
+        <circle cx="670" cy="280" r="6" />
+        <path d="M670 196 L688 196 L688 280 L670 280" />
+        <path d="M400 238 L388 238" />
+        <path d="M470 390 L470 300 L400 300" />
+      </g>
+      <text x="535" y="172" textAnchor="middle" fill={accent} fillOpacity="0.7" fontSize="9" fontFamily="Inter, sans-serif" letterSpacing="0.2em">RO MEMBRANE RACK</text>
+
+      {/* Control panel (top right) */}
       <g>
-        <rect x="440" y="150" width="140" height="48" rx="5" fill="#03060c" stroke={accent} strokeOpacity="0.5" />
-        <circle cx="456" cy="174" r="3" fill={accent} />
-        <text x="510" y="178" textAnchor="middle" fill={accent} fillOpacity="0.85" fontSize="10" fontFamily="Inter, sans-serif" letterSpacing="0.18em">COMMERCIAL RO</text>
+        <rect x="500" y="90" width="170" height="60" rx="5" fill="#03060c" stroke={accent} strokeOpacity="0.55" strokeWidth="1.2" />
+        <rect x="512" y="102" width="46" height="14" rx="2" fill="#04080f" stroke={accent} strokeOpacity="0.5" />
+        <circle cx="519" cy="109" r="2" fill={accent} />
+        <text x="558" y="112" fill={accent} fillOpacity="0.85" fontSize="8" fontFamily="Inter, sans-serif" letterSpacing="0.2em">RUN</text>
+        <rect x="512" y="124" width="146" height="10" rx="2" fill="#04080f" stroke={accent} strokeOpacity="0.3" />
+        <text x="585" y="146" textAnchor="middle" fill={accent} fillOpacity="0.7" fontSize="8" fontFamily="Inter, sans-serif" letterSpacing="0.24em">CONTROL PANEL</text>
       </g>
-      {/* Gauges */}
-      <g stroke={accent} strokeOpacity="0.45" strokeWidth="1" fill="none">
-        <circle cx="90" cy="170" r="10" />
-        <circle cx="120" cy="170" r="10" />
-        <circle cx="150" cy="170" r="10" />
+
+      {/* Pressure gauges above pretreatment */}
+      <g stroke={accent} strokeOpacity="0.5" strokeWidth="1" fill="none">
+        <circle cx="100" cy="118" r="7" />
+        <circle cx="210" cy="118" r="7" />
+        <circle cx="320" cy="118" r="7" />
+        <line x1="100" y1="118" x2="103" y2="113" />
+        <line x1="210" y1="118" x2="214" y2="112" />
+        <line x1="320" y1="118" x2="323" y2="114" />
       </g>
-      {/* Base skids */}
-      <line x1="70" y1="460" x2="570" y2="460" stroke={accent} strokeOpacity="0.3" />
-      <line x1="90" y1="460" x2="90" y2="475" stroke={accent} strokeOpacity="0.3" />
-      <line x1="550" y1="460" x2="550" y2="475" stroke={accent} strokeOpacity="0.3" />
+
+      {/* Base pipe (bottom manifold to outlet) */}
+      <g stroke={accent} strokeOpacity="0.42" strokeWidth="1.2" fill="none">
+        <line x1="30" y1="450" x2="690" y2="450" />
+        <circle cx="30" cy="450" r="4" />
+        <circle cx="690" cy="450" r="4" />
+      </g>
     </svg>
   )
 }
@@ -175,21 +247,22 @@ const PRODUCTS = [
     heading: 'Clean water, designed around your home.',
     copy: 'Domestic RO systems, installation and dependable service across Mathura.',
     cta: 'Explore system',
+    whatsapp: WHATSAPP_DOMESTIC,
     accent: '#7dd3fc',
     Svg: DomesticROSvg,
     aspect: 400 / 560,
     stages: [
       {
         title: 'Overview',
-        body: 'Home RO systems selected to match your source water and household usage. Clean install, reliable service, no jargon.'
+        body: 'Domestic RO systems for homes across Mathura — selection, installation and service enquiries.'
       },
       {
-        title: 'System stages',
-        body: 'Sediment pre-filter, activated carbon, RO membrane and storage tap. Each stage sized and placed for consistent water quality.'
+        title: 'System configuration',
+        body: 'Filtration stages and storage can be chosen to suit household usage and source water.'
       },
       {
-        title: 'Ongoing service',
-        body: 'Filter replacements, sanitation and prompt in-home visits when something needs attention.'
+        title: 'Service and maintenance',
+        body: 'Installation and ongoing service enquiries are supported across Mathura.'
       }
     ]
   },
@@ -200,22 +273,24 @@ const PRODUCTS = [
     kicker: '02 — COMMERCIAL RO',
     heading: 'Built for the capacity your business needs.',
     copy: 'Customized commercial RO systems with complete supply, installation and ongoing service—from focused requirements to malls and large complexes.',
-    cta: 'Plan a commercial RO system',
+    cta: 'Explore system',
+    whatsapp: WHATSAPP_COMMERCIAL,
+    secondaryCta: { label: 'Plan your capacity', href: WHATSAPP_COMMERCIAL },
     accent: '#67e8f9',
     Svg: CommercialROSvg,
-    aspect: 640 / 520,
+    aspect: 720 / 520,
     stages: [
       {
         title: 'Overview',
-        body: 'Every commercial deployment begins with an on-site assessment: source water TDS, hardness and daily litre demand determine the plant configuration.'
+        body: 'We understand the required capacity and intended use before recommending a suitable system.'
       },
       {
-        title: 'System stages',
-        body: 'Multi-stage pre-treatment, high-pressure RO membrane stack sized to load, storage, dosing and UV — installed as one complete supply.'
+        title: 'System configuration',
+        body: 'Commercial RO systems can be planned with the filtration stages, pumps, membrane capacity and storage required for the project.'
       },
       {
-        title: 'Ongoing service',
-        body: 'Scheduled maintenance visits, membrane cleaning cycles and rapid support across Mathura keep the plant running at spec.'
+        title: 'Service and maintenance',
+        body: 'Installation and ongoing service enquiries are supported across Mathura.'
       }
     ]
   },
@@ -227,21 +302,22 @@ const PRODUCTS = [
     heading: 'Cooling installed and maintained properly.',
     copy: 'Split AC installation, inspection and service enquiries across Mathura.',
     cta: 'Explore system',
+    whatsapp: WHATSAPP_AC,
     accent: '#a5f3fc',
     Svg: SplitACSvg,
     aspect: 640 / 360,
     stages: [
       {
         title: 'Overview',
-        body: 'On-site survey covers room load, cabling routes and drainage. The right unit for the space — not just any unit.'
+        body: 'Split AC installation and service enquiries across Mathura.'
       },
       {
-        title: 'Installation',
-        body: 'Indoor unit levelled and mounted, copper piping with proper insulation, vacuum evacuation done correctly.'
+        title: 'System configuration',
+        body: 'Indoor and outdoor units, piping and installation are planned around the space and the requirement.'
       },
       {
-        title: 'Ongoing service',
-        body: 'Performance checks, gas top-ups and scheduled service visits so the system runs cool through the season.'
+        title: 'Service and maintenance',
+        body: 'Installation and ongoing service enquiries are supported across Mathura.'
       }
     ]
   }
@@ -443,13 +519,26 @@ function Selector({ index, setIndex, onExplore }) {
         {/* CTA + name + pips */}
         <div className="mt-6 md:mt-8 flex flex-col items-center gap-4">
           <div className="text-white/50 text-[11px] uppercase tracking-[0.32em]">{current.name}</div>
-          <button
-            onClick={onExplore}
-            className="btn-primary"
-            style={{ borderColor: `${current.accent}55`, boxShadow: `0 0 30px ${current.accent}22` }}
-          >
-            {current.cta} <ArrowUpRight size={15}/>
-          </button>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <button
+              onClick={onExplore}
+              className="btn-primary"
+              style={{ borderColor: `${current.accent}55`, boxShadow: `0 0 30px ${current.accent}22` }}
+            >
+              {current.cta} <ArrowUpRight size={15}/>
+            </button>
+            {current.secondaryCta && (
+              <a
+                href={current.secondaryCta.href}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-primary"
+                style={{ borderColor: 'rgba(103,232,249,0.45)', background: 'rgba(103,232,249,0.12)', color: 'var(--aqua)' }}
+              >
+                <MessageCircle size={14}/> {current.secondaryCta.label}
+              </a>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             {PRODUCTS.map((p, i) => (
               <button
@@ -562,7 +651,7 @@ function ExpandedProduct({ product, onBack }) {
                   <h3 className="font-serif-ed text-3xl sm:text-4xl mt-2">{s.title}</h3>
                   <p className="mt-4 text-sm sm:text-base text-white/65 leading-relaxed">{s.body}</p>
                   {product.id === 'commercial' && i === 0 && (
-                    <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="btn-primary mt-6" style={{ borderColor: `${product.accent}55` }}>
+                    <a href={product.whatsapp} target="_blank" rel="noreferrer" className="btn-primary mt-6" style={{ borderColor: `${product.accent}55` }}>
                       Plan your capacity <ArrowUpRight size={14}/>
                     </a>
                   )}
@@ -603,13 +692,15 @@ function ApplianceCare() {
   const items = [
     {
       title: 'Washing machine service',
-      body: 'Diagnostics, repair and maintenance for top-load and front-load machines — at your home in Mathura.',
-      Icon: WashingMachine
+      body: 'Washing machine inspection, repair and service enquiries across Mathura.',
+      Icon: WashingMachine,
+      whatsapp: WHATSAPP_WM
     },
     {
       title: 'Refrigerator service',
-      body: 'Cooling issues, gas top-up, thermostat and general upkeep across single-door, double-door and side-by-side units.',
-      Icon: Refrigerator
+      body: 'Refrigerator inspection, cooling-related repair and service enquiries across Mathura.',
+      Icon: Refrigerator,
+      whatsapp: WHATSAPP_FRIDGE
     }
   ]
   return (
@@ -631,7 +722,7 @@ function ApplianceCare() {
               <p className="mt-4 text-sm text-white/60 leading-relaxed">{it.body}</p>
               <div className="mt-6 flex gap-2">
                 <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary"><Phone size={14}/> Call</a>
-                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="btn-primary" style={{ borderColor: 'rgba(103,232,249,0.35)', background: 'rgba(103,232,249,0.10)' }}><MessageCircle size={14}/> WhatsApp</a>
+                <a href={it.whatsapp} target="_blank" rel="noreferrer" className="btn-primary" style={{ borderColor: 'rgba(103,232,249,0.35)', background: 'rgba(103,232,249,0.10)' }}><MessageCircle size={14}/> WhatsApp</a>
               </div>
             </div>
           ))}
