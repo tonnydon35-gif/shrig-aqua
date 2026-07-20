@@ -1,10 +1,11 @@
 import './globals.css'
 import { Providers } from './providers'
+import { PHONE_PRIMARY_DISPLAY, PHONE_ALT_DISPLAY, EMAIL } from '@/lib/business'
 
 export const metadata = {
-  title: 'SHRI G AQUA Mathura — Commercial RO, Domestic RO & Split AC Service',
+  title: 'SHRI G AQUA Mathura | RO, Commercial RO & AC Service',
   description:
-    'SHRI G AQUA Mathura designs customized Commercial RO systems and delivers dependable Domestic RO sales, installation and service, alongside Split AC installation and service across Mathura, Uttar Pradesh.',
+    'Domestic RO sales and service, customized Commercial RO systems, Split AC installation and service, washing machine service and refrigerator service enquiries in Mathura.',
   keywords: [
     'Commercial RO Mathura',
     'Domestic RO Mathura',
@@ -14,11 +15,13 @@ export const metadata = {
     'Refrigerator service Mathura',
     'SHRI G AQUA'
   ],
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'SHRI G AQUA Mathura — Commercial RO specialists',
+    title: 'SHRI G AQUA Mathura | RO, Commercial RO & AC Service',
     description:
-      'Customized commercial RO systems, domestic RO sales & service, and Split AC service across Mathura.',
-    type: 'website'
+      'Domestic RO sales and service, customized Commercial RO systems, Split AC installation and service, and appliance service enquiries across Mathura.',
+    type: 'website',
+    url: '/'
   },
   robots: { index: true, follow: true }
 }
@@ -28,6 +31,27 @@ export const viewport = {
   initialScale: 1,
   viewportFit: 'cover',
   themeColor: '#05070c'
+}
+
+const localBusinessLd = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  name: 'SHRI G AQUA',
+  telephone: PHONE_PRIMARY_DISPLAY,
+  email: EMAIL,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '301 Krishna Vihar Colony, Near Diksha Public School, BSA Road, Bypass',
+    addressLocality: 'Mathura',
+    addressRegion: 'Uttar Pradesh',
+    postalCode: '281001',
+    addressCountry: 'IN'
+  },
+  contactPoint: [
+    { '@type': 'ContactPoint', telephone: PHONE_PRIMARY_DISPLAY, contactType: 'customer service' },
+    { '@type': 'ContactPoint', telephone: PHONE_ALT_DISPLAY, contactType: 'customer service' }
+  ],
+  areaServed: { '@type': 'City', name: 'Mathura, Uttar Pradesh' }
 }
 
 export default function RootLayout({ children }) {
@@ -41,6 +65,10 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
         <script dangerouslySetInnerHTML={{__html:'window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);'}} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
+        />
       </head>
       <body className="antialiased bg-[#05070c] text-white overflow-x-hidden">
         <Providers>{children}</Providers>

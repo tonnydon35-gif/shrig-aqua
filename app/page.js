@@ -2,12 +2,14 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { Phone, MessageCircle, Mail, MapPin, ChevronLeft, ChevronRight, ArrowUpRight, X, Menu, WashingMachine, Refrigerator } from 'lucide-react'
+import { Phone, MessageCircle, Mail, MapPin, ChevronLeft, ChevronRight, ArrowUpRight, X, Menu, WashingMachine, Refrigerator, Plus, Minus, Send, Droplet, Wind, Factory } from 'lucide-react'
 import {
   PHONE_PRIMARY, PHONE_PRIMARY_DISPLAY, PHONE_ALT, PHONE_ALT_DISPLAY,
   EMAIL, ADDRESS_LINE, MAPS_URL,
-  WHATSAPP_URL, WHATSAPP_COMMERCIAL, WHATSAPP_DOMESTIC, WHATSAPP_AC, WHATSAPP_WM, WHATSAPP_FRIDGE
+  WHATSAPP_URL, WHATSAPP_COMMERCIAL, WHATSAPP_DOMESTIC, WHATSAPP_AC, WHATSAPP_WM, WHATSAPP_FRIDGE,
+  WHATSAPP_RO_SERVICE, WHATSAPP_COMMERCIAL_SERVICE, WHATSAPP_AC_SERVICE
 } from '@/lib/business'
+import EnquiryPopup, { useAutoEnquiryTrigger } from '@/components/EnquiryPopup'
 
 /* ============================================================
    SHRI G AQUA — Revision 01
@@ -359,18 +361,20 @@ function ProductVisual({ product, sizeClass = 'w-full h-full', dim = false }) {
 }
 
 /* ------- Top bar ------- */
-function TopBar({ onMenu, hidden }) {
+function TopBar({ onMenu, onEnquiry, hidden }) {
   return (
     <header className={`fixed top-0 left-0 right-0 z-40 transition-opacity duration-500 ${hidden ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
       <div className="flex items-center justify-between px-5 sm:px-8 pt-5 sm:pt-6">
-        <a href="#top" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-2 group">
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--aqua)' }} />
           <span className="font-serif-ed text-xl tracking-tight">SHRI G <span style={{ color: 'var(--aqua)' }}>AQUA</span></span>
-        </a>
+        </Link>
         <nav className="hidden md:flex items-center gap-1">
-          <a href="#products" className="btn-ghost">Products</a>
-          <a href="#care" className="btn-ghost">Appliance care</a>
-          <a href="#contact" className="btn-ghost">Contact</a>
+          <Link href="/#products" className="btn-ghost">Products</Link>
+          <Link href="/#services" className="btn-ghost">Services</Link>
+          <Link href="/commercial-ro" className="btn-ghost" style={{ color: 'var(--aqua)' }}>Commercial RO</Link>
+          <Link href="/#contact" className="btn-ghost">Contact</Link>
+          <button onClick={onEnquiry} className="btn-ghost ml-1" aria-haspopup="dialog"><Send size={14}/> Send enquiry</button>
           <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary ml-2"><Phone size={15}/> Call now</a>
         </nav>
         <button className="md:hidden btn-icon" onClick={onMenu} aria-label="Open menu"><Menu size={18}/></button>
@@ -380,7 +384,7 @@ function TopBar({ onMenu, hidden }) {
 }
 
 /* ------- Mobile bottom dock (persistent) ------- */
-function MobileDock() {
+function MobileDock({ onEnquiry }) {
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe px-4">
       <div className="flex items-center gap-2 mx-auto max-w-md rounded-full border border-white/10 bg-black/70 backdrop-blur-xl px-2 py-2">
@@ -390,9 +394,9 @@ function MobileDock() {
         <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-full text-sm" style={{ background: 'rgba(103,232,249,0.14)', color: 'var(--aqua)' }} aria-label="WhatsApp SHRI G AQUA">
           <MessageCircle size={16}/> WhatsApp
         </a>
-        <a href="#contact" className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-white/5" aria-label="More contact options">
-          <ArrowUpRight size={16}/>
-        </a>
+        <button onClick={onEnquiry} className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-white/5" aria-label="Send enquiry" aria-haspopup="dialog">
+          <Send size={16}/>
+        </button>
       </div>
     </div>
   )
@@ -535,9 +539,11 @@ function Selector({ index, setIndex, onExplore }) {
           {current.id === 'commercial' && (
             <Link
               href="/commercial-ro"
-              className="mt-1 text-[11px] uppercase tracking-[0.28em] text-white/60 hover:text-white transition inline-flex items-center gap-1.5 min-h-[44px]"
+              className="mt-1 group inline-flex items-center gap-2 rounded-full px-4 py-2.5 min-h-[44px] border border-white/15 hover:border-[color:var(--aqua)] transition text-xs uppercase tracking-[0.24em] text-white/80 hover:text-white"
+              style={{ background: 'rgba(103,232,249,0.05)' }}
             >
-              View capacities &amp; process <ArrowUpRight size={12}/>
+              View capacities &amp; process
+              <ArrowUpRight size={13} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style={{ color: 'var(--aqua)' }}/>
             </Link>
           )}
           <div className="flex items-center gap-2">
@@ -694,46 +700,218 @@ function ExpandedProduct({ product, onBack }) {
 /* ============================================================
    Appliance Care section (#care) — compact, restrained
 ============================================================ */
-function ApplianceCare() {
-  const items = [
+function Services() {
+  const cards = [
     {
-      title: 'Washing machine service',
-      body: 'Washing machine inspection, repair and service enquiries across Mathura.',
-      Icon: WashingMachine,
-      whatsapp: WHATSAPP_WM
+      key: 'ro',
+      title: 'RO Service',
+      copy: 'Domestic RO inspection, maintenance and service enquiries across Mathura.',
+      Icon: Droplet,
+      whatsapp: WHATSAPP_RO_SERVICE,
+      call: true,
+      accent: '#7dd3fc',
+      mobileOrder: 2,
+      className: 'lg:col-span-3'
     },
     {
-      title: 'Refrigerator service',
-      body: 'Refrigerator inspection, cooling-related repair and service enquiries across Mathura.',
+      key: 'commercial',
+      title: 'Commercial RO Service',
+      copy: 'Commercial RO installation, system-service and ongoing maintenance enquiries for customized-capacity plants.',
+      Icon: Factory,
+      whatsapp: WHATSAPP_COMMERCIAL_SERVICE,
+      viewCapacities: true,
+      accent: '#67e8f9',
+      featured: true,
+      mobileOrder: 1,
+      className: 'lg:col-span-6'
+    },
+    {
+      key: 'ac',
+      title: 'AC Installation & Service',
+      copy: 'Split AC installation, inspection and service enquiries across Mathura.',
+      Icon: Wind,
+      whatsapp: WHATSAPP_AC_SERVICE,
+      call: true,
+      accent: '#a5f3fc',
+      mobileOrder: 3,
+      className: 'lg:col-span-3'
+    },
+    {
+      key: 'wm',
+      title: 'Washing Machine Service',
+      copy: 'Washing machine inspection, repair and service enquiries across Mathura.',
+      Icon: WashingMachine,
+      whatsapp: WHATSAPP_WM,
+      call: true,
+      accent: '#7dd3fc',
+      mobileOrder: 4,
+      className: 'lg:col-span-6'
+    },
+    {
+      key: 'fridge',
+      title: 'Refrigerator Service',
+      copy: 'Refrigerator inspection, cooling-related repair and service enquiries across Mathura.',
       Icon: Refrigerator,
-      whatsapp: WHATSAPP_FRIDGE
+      whatsapp: WHATSAPP_FRIDGE,
+      call: true,
+      accent: '#a5f3fc',
+      mobileOrder: 5,
+      className: 'lg:col-span-6'
     }
   ]
+
   return (
-    <section id="care" className="relative stage grain px-6 py-20 sm:py-28 scroll-mt-24">
+    <section id="services" className="relative stage grain px-5 sm:px-8 py-20 sm:py-28 scroll-mt-24">
+      {/* Compatibility anchor for previously-shared #care links */}
+      <span id="care" className="absolute" aria-hidden="true" />
       <div className="stars" />
-      <div className="relative z-10 max-w-5xl mx-auto">
-        <div className="text-center">
-          <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">Appliance care</div>
-          <h2 className="font-serif-ed mt-3 text-4xl sm:text-5xl leading-[1.05]">Everyday appliances, kept working.</h2>
-          <p className="mt-4 text-sm sm:text-base text-white/60 max-w-xl mx-auto">Alongside water and cooling, SHRI G AQUA supports the appliances your home relies on.</p>
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto">
+          <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">Services</div>
+          <h2 className="font-serif-ed mt-3 text-4xl sm:text-5xl leading-[1.05]">Water, cooling and appliance support.</h2>
+          <p className="mt-4 text-sm sm:text-base text-white/60 max-w-xl mx-auto">
+            Choose the service you need and connect directly with SHRI G AQUA in Mathura.
+          </p>
         </div>
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {items.map((it, i) => (
-            <div key={i} className="rounded-2xl border border-white/10 p-6 sm:p-7 bg-white/[0.02] hover:border-white/25 transition">
-              <div className="flex items-center gap-3">
-                <div className="btn-icon" aria-hidden="true"><it.Icon size={16}/></div>
-                <div className="font-serif-ed text-2xl">{it.title}</div>
+
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+          {cards.map((c) => {
+            const featured = c.featured
+            return (
+              <div
+                key={c.key}
+                className={`relative rounded-2xl p-6 sm:p-7 transition-all flex flex-col ${c.className}`}
+                style={{
+                  order: c.mobileOrder,
+                  background: featured
+                    ? 'linear-gradient(180deg, rgba(103,232,249,0.06), rgba(255,255,255,0.02))'
+                    : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${featured ? 'rgba(103,232,249,0.35)' : 'rgba(255,255,255,0.10)'}`,
+                  boxShadow: featured ? `0 0 40px ${c.accent}22` : 'none'
+                }}
+              >
+                {featured && (
+                  <>
+                    <span className="pointer-events-none absolute top-2 left-2 w-3 h-3 border-t border-l" style={{ borderColor: `${c.accent}88` }} />
+                    <span className="pointer-events-none absolute top-2 right-2 w-3 h-3 border-t border-r" style={{ borderColor: `${c.accent}88` }} />
+                    <span className="pointer-events-none absolute bottom-2 left-2 w-3 h-3 border-b border-l" style={{ borderColor: `${c.accent}88` }} />
+                    <span className="pointer-events-none absolute bottom-2 right-2 w-3 h-3 border-b border-r" style={{ borderColor: `${c.accent}88` }} />
+                    <div className="absolute top-4 right-4 text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded-full" style={{ background: 'rgba(103,232,249,0.14)', color: c.accent, border: `1px solid ${c.accent}55` }}>
+                      Primary offering
+                    </div>
+                  </>
+                )}
+
+                <div className="flex items-center gap-3">
+                  <div className="btn-icon" aria-hidden="true" style={featured ? { background: 'rgba(103,232,249,0.12)', borderColor: `${c.accent}55` } : {}}>
+                    <c.Icon size={16} style={featured ? { color: c.accent } : {}}/>
+                  </div>
+                  <h3 className="font-serif-ed text-2xl" style={featured ? { color: '#f5f7fa' } : {}}>{c.title}</h3>
+                </div>
+
+                <p className="mt-4 text-sm text-white/65 leading-relaxed flex-1">{c.copy}</p>
+
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {c.viewCapacities ? (
+                    <Link href="/commercial-ro" className="btn-primary" style={{ borderColor: `${c.accent}55` }}>
+                      View capacities <ArrowUpRight size={14}/>
+                    </Link>
+                  ) : (
+                    <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary"><Phone size={14}/> Call</a>
+                  )}
+                  <a
+                    href={c.whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary"
+                    style={{ borderColor: 'rgba(103,232,249,0.35)', background: 'rgba(103,232,249,0.10)', color: featured ? c.accent : undefined }}
+                  >
+                    <MessageCircle size={14}/> WhatsApp
+                  </a>
+                </div>
               </div>
-              <p className="mt-4 text-sm text-white/60 leading-relaxed">{it.body}</p>
-              <div className="mt-6 flex gap-2">
-                <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary"><Phone size={14}/> Call</a>
-                <a href={it.whatsapp} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ borderColor: 'rgba(103,232,249,0.35)', background: 'rgba(103,232,249,0.10)' }}><MessageCircle size={14}/> WhatsApp</a>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============================================================
+   FAQ section (#faq) — accessible native disclosure
+============================================================ */
+const FAQ_ITEMS = [
+  {
+    q: 'Do you provide Domestic RO installation and service in Mathura?',
+    a: 'Yes. SHRI G AQUA supports Domestic RO sales, installation and service enquiries across Mathura.'
+  },
+  {
+    q: 'Can Commercial RO capacity be customized?',
+    a: 'Yes. Commercial RO systems can be planned according to the required capacity, intended use and project requirements.'
+  },
+  {
+    q: 'Do you install and service Commercial RO plants?',
+    a: 'SHRI G AQUA supports Commercial RO supply, complete installation and ongoing service enquiries.'
+  },
+  {
+    q: 'Do you provide AC and appliance service?',
+    a: 'Yes. Split AC installation and service, washing machine service and refrigerator service enquiries are supported across Mathura.'
+  },
+  {
+    q: 'How can I discuss my requirement?',
+    a: 'Call +91 84496 91018 or message SHRI G AQUA on WhatsApp with the service and location details.'
+  }
+]
+
+function FAQ() {
+  return (
+    <section id="faq" className="relative stage grain px-5 sm:px-8 py-20 sm:py-24 scroll-mt-24">
+      <div className="stars" />
+      <div className="relative z-10 max-w-3xl mx-auto">
+        <div className="text-center">
+          <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">FAQ</div>
+          <h2 className="font-serif-ed mt-3 text-4xl sm:text-5xl leading-[1.05]">Questions before you call.</h2>
+        </div>
+
+        <div className="mt-10 space-y-2">
+          {FAQ_ITEMS.map((it, i) => (
+            <details
+              key={i}
+              className="group rounded-2xl border border-white/10 bg-white/[0.015] open:border-white/25 transition"
+            >
+              <summary
+                className="list-none cursor-pointer flex items-center justify-between gap-4 p-5 sm:p-6 min-h-[56px] outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--aqua)]/40 rounded-2xl"
+              >
+                <span className="font-serif-ed text-lg sm:text-xl text-white pr-4">{it.q}</span>
+                <span className="btn-icon shrink-0" aria-hidden="true">
+                  <Plus size={16} className="group-open:hidden" />
+                  <Minus size={16} className="hidden group-open:inline" />
+                </span>
+              </summary>
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-1 text-sm sm:text-base text-white/65 leading-relaxed">
+                {it.a}
               </div>
-            </div>
+            </details>
           ))}
         </div>
       </div>
+
+      {/* FAQPage structured data — matches visible questions exactly */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: FAQ_ITEMS.map((it) => ({
+              '@type': 'Question',
+              name: it.q,
+              acceptedAnswer: { '@type': 'Answer', text: it.a }
+            }))
+          })
+        }}
+      />
     </section>
   )
 }
@@ -793,7 +971,18 @@ function ContactSection() {
         </div>
 
         <div className="mt-16 hairline max-w-md mx-auto" />
-        <p className="mt-8 text-xs text-white/40 pb-24 md:pb-0">
+        <div className="mt-8 flex flex-wrap justify-center gap-4 text-xs text-white/50">
+          <Link href="/" className="hover:text-white">Home</Link>
+          <span className="text-white/20">·</span>
+          <Link href="/#products" className="hover:text-white">Products</Link>
+          <span className="text-white/20">·</span>
+          <Link href="/#services" className="hover:text-white">Services</Link>
+          <span className="text-white/20">·</span>
+          <Link href="/commercial-ro" className="hover:text-white">Commercial RO</Link>
+          <span className="text-white/20">·</span>
+          <Link href="/#faq" className="hover:text-white">FAQ</Link>
+        </div>
+        <p className="mt-6 text-xs text-white/40 pb-24 md:pb-0">
           © {new Date().getFullYear()} SHRI G AQUA · Mathura, Uttar Pradesh
         </p>
       </div>
@@ -802,18 +991,23 @@ function ContactSection() {
 }
 
 /* ------- Mobile menu overlay ------- */
-function MobileMenu({ open, onClose }) {
+function MobileMenu({ open, onClose, onEnquiry }) {
   if (!open) return null
+  const go = (fn) => () => { onClose(); if (fn) fn() }
   return (
     <div className="md:hidden fixed inset-0 z-50 bg-black/92 backdrop-blur-2xl flex flex-col">
       <div className="flex items-center justify-between px-5 pt-6">
         <span className="font-serif-ed text-xl">SHRI G <span style={{ color: 'var(--aqua)' }}>AQUA</span></span>
         <button onClick={onClose} className="btn-icon" aria-label="Close menu"><X size={18}/></button>
       </div>
-      <div className="flex-1 flex flex-col justify-center items-start px-8 gap-6">
-        <a onClick={onClose} href="#products" className="font-serif-ed text-4xl">Products</a>
-        <a onClick={onClose} href="#care" className="font-serif-ed text-4xl">Appliance care</a>
-        <a onClick={onClose} href="#contact" className="font-serif-ed text-4xl">Contact</a>
+      <div className="flex-1 flex flex-col justify-center items-start px-8 gap-5">
+        <Link onClick={onClose} href="/#products" className="font-serif-ed text-4xl min-h-[44px]">Products</Link>
+        <Link onClick={onClose} href="/#services" className="font-serif-ed text-4xl min-h-[44px]">Services</Link>
+        <Link onClick={onClose} href="/commercial-ro" className="font-serif-ed text-4xl min-h-[44px]" style={{ color: 'var(--aqua)' }}>Commercial RO</Link>
+        <Link onClick={onClose} href="/#contact" className="font-serif-ed text-4xl min-h-[44px]">Contact</Link>
+        <button onClick={go(onEnquiry)} className="font-serif-ed text-2xl text-white/70 min-h-[44px] flex items-center gap-2" aria-haspopup="dialog">
+          <Send size={18}/> Send enquiry
+        </button>
       </div>
       <div className="px-5 pb-safe grid grid-cols-2 gap-3">
         <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary justify-center"><Phone size={15}/> Call</a>
@@ -830,18 +1024,46 @@ function App() {
   const [index, setIndex] = useState(DEFAULT_INDEX)
   const [expanded, setExpanded] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [enquiryOpen, setEnquiryOpen] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
   const current = PRODUCTS[index]
+
+  // ?enquiry=1 param — open popup, then clean URL
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const url = new URL(window.location.href)
+    if (url.searchParams.get('enquiry') === '1') {
+      setEnquiryOpen(true)
+      url.searchParams.delete('enquiry')
+      window.history.replaceState({}, '', url.pathname + url.search + url.hash)
+    }
+    // Reduced motion detection
+    try {
+      const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
+      setReducedMotion(mql.matches)
+      const onChange = (e) => setReducedMotion(e.matches)
+      mql.addEventListener('change', onChange)
+      return () => mql.removeEventListener('change', onChange)
+    } catch { /* noop */ }
+  }, [])
+
+  // Auto-trigger the enquiry popup (8s OR 30% scroll, once-per-session, 24h suppression)
+  useAutoEnquiryTrigger({
+    blocked: expanded || menuOpen || enquiryOpen,
+    onFire: useCallback(() => setEnquiryOpen(true), [])
+  })
 
   useEffect(() => {
     if (expanded) return
     const onKey = (e) => {
+      if (enquiryOpen || menuOpen) return
       if (e.key === 'ArrowLeft') setIndex(i => (i - 1 + PRODUCTS.length) % PRODUCTS.length)
       else if (e.key === 'ArrowRight') setIndex(i => (i + 1) % PRODUCTS.length)
       else if (e.key === 'Enter') setExpanded(true)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [expanded])
+  }, [expanded, enquiryOpen, menuOpen])
 
   const handleExplore = useCallback(() => {
     setExpanded(true)
@@ -861,18 +1083,33 @@ function App() {
 
   return (
     <main id="top" className="relative w-full">
-      <TopBar onMenu={() => setMenuOpen(true)} hidden={expanded} />
-      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <TopBar
+        onMenu={() => setMenuOpen(true)}
+        onEnquiry={() => setEnquiryOpen(true)}
+        hidden={expanded}
+      />
+      <MobileMenu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onEnquiry={() => setEnquiryOpen(true)}
+      />
 
       <Selector index={index} setIndex={setIndex} onExplore={handleExplore} />
 
       {expanded && <ExpandedProduct product={current} onBack={handleBack} />}
 
-      <ApplianceCare />
+      <Services />
+      <FAQ />
       <ContactSection />
 
       <ActionRail />
-      <MobileDock />
+      <MobileDock onEnquiry={() => setEnquiryOpen(true)} />
+
+      <EnquiryPopup
+        open={enquiryOpen}
+        onClose={() => setEnquiryOpen(false)}
+        prefersReducedMotion={reducedMotion}
+      />
 
       {/* Crawlable content */}
       <div className="sr-only">

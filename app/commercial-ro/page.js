@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import {
-  Phone, MessageCircle, ArrowUpRight, ChevronRight, ChevronLeft, X, Menu, Mail, MapPin,
+  Phone, MessageCircle, ArrowUpRight, ChevronRight, ChevronLeft, X, Menu, Mail, MapPin, Send,
   Building2, UtensilsCrossed, GraduationCap, School, Hotel, HeartPulse, Building, Factory,
   Package, Store, Home as HomeIcon, Check
 } from 'lucide-react'
@@ -109,9 +109,10 @@ function TopBar({ onMenu }) {
         </Link>
         <nav className="hidden md:flex items-center gap-1">
           <Link href="/#products" className="btn-ghost">Products</Link>
+          <Link href="/#services" className="btn-ghost">Services</Link>
           <Link href="/commercial-ro" className="btn-ghost" style={{ color: 'var(--aqua)' }}>Commercial RO</Link>
-          <Link href="/#care" className="btn-ghost">Appliance care</Link>
           <Link href="/#contact" className="btn-ghost">Contact</Link>
+          <Link href="/?enquiry=1" className="btn-ghost ml-1"><Send size={14}/> Send enquiry</Link>
           <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary ml-2"><Phone size={15}/> Call now</a>
         </nav>
         <button className="md:hidden btn-icon" onClick={onMenu} aria-label="Open menu"><Menu size={18}/></button>
@@ -130,9 +131,10 @@ function MobileMenu({ open, onClose }) {
       </div>
       <div className="flex-1 flex flex-col justify-center items-start px-8 gap-6">
         <Link onClick={onClose} href="/#products" className="font-serif-ed text-4xl">Products</Link>
+        <Link onClick={onClose} href="/#services" className="font-serif-ed text-4xl">Services</Link>
         <Link onClick={onClose} href="/commercial-ro" className="font-serif-ed text-4xl" style={{ color: 'var(--aqua)' }}>Commercial RO</Link>
-        <Link onClick={onClose} href="/#care" className="font-serif-ed text-4xl">Appliance care</Link>
         <Link onClick={onClose} href="/#contact" className="font-serif-ed text-4xl">Contact</Link>
+        <Link onClick={onClose} href="/?enquiry=1" className="font-serif-ed text-2xl text-white/70 inline-flex items-center gap-2"><Send size={18}/> Send enquiry</Link>
       </div>
       <div className="px-5 pb-safe grid grid-cols-2 gap-3">
         <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary justify-center"><Phone size={15}/> Call</a>
@@ -487,10 +489,19 @@ export default function CommercialROPage() {
             </div>
           </div>
 
-          {/* Back to homepage link */}
-          <div className="mt-10 text-center">
-            <Link href="/#products" className="inline-flex items-center gap-2 btn-ghost">
-              <ChevronLeft size={14}/> Back to product universe
+          {/* Return paths back to homepage */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+            <Link href="/#products" className="btn-ghost inline-flex items-center gap-1.5">
+              <ChevronLeft size={14}/> Back to products
+            </Link>
+            <Link href="/#services" className="btn-ghost inline-flex items-center gap-1.5">
+              View all services <ArrowUpRight size={13}/>
+            </Link>
+            <Link href="/#contact" className="btn-ghost inline-flex items-center gap-1.5">
+              Contact <ArrowUpRight size={13}/>
+            </Link>
+            <Link href="/" className="btn-ghost inline-flex items-center gap-1.5">
+              Home <ArrowUpRight size={13}/>
             </Link>
           </div>
         </div>
