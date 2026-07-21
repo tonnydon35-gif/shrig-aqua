@@ -1,100 +1,124 @@
 import './globals.css'
 import { Providers } from './providers'
-import { PHONE_PRIMARY_DISPLAY, PHONE_ALT_DISPLAY, EMAIL } from '@/lib/business'
+import {
+  BUSINESS_NAME,
+  TAGLINE,
+  PHONE_PRIMARY_DISPLAY,
+  PHONE_ALT_DISPLAY,
+  EMAIL,
+} from '@/lib/business'
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ||
-  'https://www.shrigaqua.in' // production-safe default; override via env in production
+  (process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3000'
+    : 'https://www.shrigaqua.in')
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'SHRI G AQUA Mathura | RO, Commercial RO & AC Service',
-  description:
-    'Domestic RO sales and service, customized Commercial RO systems, Split AC installation and service, washing machine service and refrigerator service enquiries in Mathura.',
+  title: `${BUSINESS_NAME} | RO Repair, Installation, AMC, Commercial RO & AC Service`,
+  description: `Professional RO repair, installation, filter replacement, AMC, commercial RO and AC service solutions for homes and businesses in Mathura, Vrindavan, Kosi Kalan, and nearby areas. ${TAGLINE}`,
   keywords: [
-    'Commercial RO Mathura',
-    'Domestic RO Mathura',
+    'RO repair Mathura',
+    'RO installation Mathura',
+    'RO AMC plans',
+    'Commercial RO systems',
+    'AC repair Mathura',
+    'water purifier service',
+    'filter replacement',
     'RO service Mathura',
-    'Split AC installation Mathura',
-    'Washing machine service Mathura',
-    'Refrigerator service Mathura',
-    'SHRI G AQUA'
+    'Shrig Aqua',
+    'RO service Vrindavan',
   ],
   alternates: { canonical: '/' },
   openGraph: {
-    title: 'SHRI G AQUA Mathura | RO, Commercial RO & AC Service',
-    description:
-      'Domestic RO sales and service, customized Commercial RO systems, Split AC installation and service, and appliance service enquiries in Mathura.',
+    title: `${BUSINESS_NAME} | ${TAGLINE}`,
+    description: `Professional RO repair, installation, filter replacement, AMC, commercial RO and AC service solutions for homes and businesses in Mathura, Vrindavan, Kosi Kalan, and nearby areas.`,
     url: '/',
-    siteName: 'SHRI G AQUA',
+    siteName: BUSINESS_NAME,
     type: 'website',
-    locale: 'en_IN'
+    locale: 'en_IN',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SHRI G AQUA Mathura | RO, Commercial RO & AC Service',
-    description:
-      'Domestic RO sales and service, customized Commercial RO systems, Split AC installation and service in Mathura.'
+    title: `${BUSINESS_NAME} | RO Repair, Installation, AMC, Commercial RO & AC Service`,
+    description: `Professional RO repair, installation, filter replacement, AMC, commercial RO and AC service solutions in Mathura, Vrindavan, Kosi Kalan, and nearby areas.`,
   },
   robots: { index: true, follow: true },
-  category: 'Water treatment services'
+  category: 'Water treatment and AC services',
 }
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#05070c'
+  themeColor: '#041827',
 }
 
 const localBusinessLd = {
   '@context': 'https://schema.org',
   '@type': 'LocalBusiness',
   '@id': `${SITE_URL}/#business`,
-  name: 'SHRI G AQUA',
+  name: BUSINESS_NAME,
   url: SITE_URL,
   telephone: PHONE_PRIMARY_DISPLAY,
   email: EMAIL,
+  description: TAGLINE,
+  areaServed: ['Mathura', 'Vrindavan', 'Kosi Kalan', 'Gokul', 'Govardhan', 'Barsana'],
   address: {
     '@type': 'PostalAddress',
     streetAddress: '301 Krishna Vihar Colony, Near Diksha Public School, BSA Road, Bypass',
     addressLocality: 'Mathura',
     addressRegion: 'Uttar Pradesh',
     postalCode: '281001',
-    addressCountry: 'IN'
+    addressCountry: 'IN',
   },
   contactPoint: [
-    { '@type': 'ContactPoint', telephone: PHONE_PRIMARY_DISPLAY, contactType: 'customer service', areaServed: 'IN', availableLanguage: ['en', 'hi'] },
-    { '@type': 'ContactPoint', telephone: PHONE_ALT_DISPLAY, contactType: 'customer service', areaServed: 'IN', availableLanguage: ['en', 'hi'] }
+    {
+      '@type': 'ContactPoint',
+      telephone: PHONE_PRIMARY_DISPLAY,
+      contactType: 'customer service',
+      areaServed: 'IN',
+      availableLanguage: ['en', 'hi'],
+    },
+    {
+      '@type': 'ContactPoint',
+      telephone: PHONE_ALT_DISPLAY,
+      contactType: 'customer service',
+      areaServed: 'IN',
+      availableLanguage: ['en', 'hi'],
+    },
   ],
-  areaServed: { '@type': 'City', name: 'Mathura, Uttar Pradesh' },
   makesOffer: [
-    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Domestic RO sales, installation and service' } },
-    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Customized Commercial RO systems and installation' } },
-    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Commercial RO ongoing service and maintenance' } },
-    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Split AC installation and service' } },
-    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Washing machine service' } },
-    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Refrigerator service' } }
-  ]
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'RO Repair and Maintenance' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'RO Installation' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Filter and Membrane Replacement' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'RO AMC Plans' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Commercial RO Systems' } },
+    { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'AC Repair and Service' } },
+  ],
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
           rel="stylesheet"
         />
-        <script dangerouslySetInnerHTML={{__html:'window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);'}} />
+        <link
+          rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23041827'/><text x='16' y='22' text-anchor='middle' font-size='18' fill='%2320C5D8' font-family='sans-serif'>S</text></svg>"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
         />
       </head>
-      <body className="antialiased bg-[#05070c] text-white overflow-x-hidden">
+      <body className="antialiased overflow-x-hidden">
         <Providers>{children}</Providers>
       </body>
     </html>

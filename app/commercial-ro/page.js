@@ -1,517 +1,524 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { useState } from 'react'
 import {
-  Phone, MessageCircle, ArrowUpRight, ChevronRight, ChevronLeft, X, Menu, Mail, MapPin, Send,
-  Building2, UtensilsCrossed, GraduationCap, School, Hotel, HeartPulse, Building, Factory,
-  Package, Store, Home as HomeIcon, Check
+  Phone, MessageCircle, Mail, MapPin, ChevronRight, Check,
+  X, Menu, Shield, Award, Wrench, Clock, Building2,
+  Droplets, ArrowRight, ArrowUp, HeadphonesIcon,
+  UtensilsCrossed, GraduationCap, School, Hotel, HeartPulse,
+  Building, Factory, Package, Store, Home, Beaker,
+  Filter, Star, Zap, BarChart3, Settings,
 } from 'lucide-react'
 import {
-  PHONE_PRIMARY, PHONE_PRIMARY_DISPLAY, PHONE_ALT, PHONE_ALT_DISPLAY,
-  EMAIL, ADDRESS_LINE, MAPS_URL, WHATSAPP_URL,
-  WHATSAPP_CR_HERO, WHATSAPP_CR_250_500, WHATSAPP_CR_1000_2000, WHATSAPP_CR_CUSTOM, WHATSAPP_CR_SITE_SURVEY
+  BUSINESS_NAME, TAGLINE, PHONE_PRIMARY, PHONE_PRIMARY_DISPLAY,
+  PHONE_ALT, PHONE_ALT_DISPLAY, EMAIL, WHATSAPP_COMMERCIAL,
+  WHATSAPP_URL, SERVICE_AREAS, WORKING_HOURS, ADDRESS_LINE, waLink,
 } from '@/lib/business'
 
-/* ==========================================================
-   /commercial-ro — Industrial & Commercial RO Capacities
-   Translated into the existing SHRI G AQUA cinematic language.
-   No white cards, no generic Tailwind template look.
-========================================================== */
-
-const CAPACITIES = [
-  {
-    label: 'Compact Commercial',
-    range: '250 LPH – 500 LPH',
-    description:
-      'Ideal for small offices, restaurants, cafés and coaching institutes requiring a steady purified-water supply.',
-    features: [
-      'Compact skid-mounted design',
-      'Low power consumption',
-      'Fully automatic operation'
-    ],
-    cta: 'Enquire for 250–500 LPH',
-    href: WHATSAPP_CR_250_500,
-    accent: '#7dd3fc'
-  },
-  {
-    label: 'High-Demand Commercial',
-    range: '1000 LPH – 2000 LPH',
-    badge: 'Most Popular',
-    description:
-      'Engineered for schools, banquet halls, hotels, hospitals and housing societies.',
-    features: [
-      'Heavy-duty FRP / SS vessels',
-      'Runxin automatic control valves',
-      'Anti-scalant dosing system'
-    ],
-    cta: 'Enquire for 1000–2000 LPH',
-    href: WHATSAPP_CR_1000_2000,
-    accent: '#67e8f9',
-    featured: true
-  },
-  {
-    label: 'Industrial Custom',
-    range: '3000 LPH+',
-    description:
-      'Custom-built large-capacity mineral-water packaging plants and industrial manufacturing setups.',
-    features: [
-      'Customized multi-stage filtration',
-      'Industrial water softeners and sand filters',
-      'Professional nominal-bore UPVC piping'
-    ],
-    cta: 'Enquire for a Custom Plant',
-    href: WHATSAPP_CR_CUSTOM,
-    accent: '#a5f3fc'
-  }
-]
-
-const PROCESS_STEPS = [
-  {
-    n: '01',
-    title: 'Raw Water Testing & Analysis',
-    body: 'Testing the source water for TDS, hardness and relevant contaminants.'
-  },
-  {
-    n: '02',
-    title: 'Custom System Configuration',
-    body: 'Selecting suitable vessel sizing, pump ratings, membrane capacity and filtration media.'
-  },
-  {
-    n: '03',
-    title: 'Installation & AMC Support',
-    body: 'System installation, manifold piping, testing and ongoing maintenance support.'
-  }
-]
-
-const APPLICATIONS = [
-  { label: 'Offices', Icon: Building2 },
-  { label: 'Restaurants & cafés', Icon: UtensilsCrossed },
-  { label: 'Coaching institutes', Icon: GraduationCap },
-  { label: 'Schools', Icon: School },
-  { label: 'Banquet halls', Icon: Building },
-  { label: 'Hotels', Icon: Hotel },
-  { label: 'Hospitals', Icon: HeartPulse },
-  { label: 'Housing societies', Icon: HomeIcon },
-  { label: 'Manufacturing plants', Icon: Factory },
-  { label: 'Mineral-water packaging', Icon: Package },
-  { label: 'Malls & large complexes', Icon: Store }
-]
-
-/* ------- Shared minimal chrome (kept local to this route) ------- */
-function TopBar({ onMenu }) {
-  return (
-    <header className="fixed top-0 left-0 right-0 z-40">
-      <div className="flex items-center justify-between px-5 sm:px-8 pt-5 sm:pt-6">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ background: 'var(--aqua)' }} />
-          <span className="font-serif-ed text-xl tracking-tight">SHRI G <span style={{ color: 'var(--aqua)' }}>AQUA</span></span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-1">
-          <Link href="/#products" className="btn-ghost">Products</Link>
-          <Link href="/#services" className="btn-ghost">Services</Link>
-          <Link href="/commercial-ro" className="btn-ghost" style={{ color: 'var(--aqua)' }}>Commercial RO</Link>
-          <Link href="/#contact" className="btn-ghost">Contact</Link>
-          <Link href="/?enquiry=1" className="btn-ghost ml-1"><Send size={14}/> Send enquiry</Link>
-          <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary ml-2"><Phone size={15}/> Call now</a>
-        </nav>
-        <button className="md:hidden btn-icon" onClick={onMenu} aria-label="Open menu"><Menu size={18}/></button>
-      </div>
-    </header>
-  )
+function useScrollY() {
+  const [y, setY] = useState(0)
+  useEffect(() => {
+    const onScroll = () => setY(window.scrollY)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return y
 }
 
-function MobileMenu({ open, onClose }) {
-  if (!open) return null
-  return (
-    <div className="md:hidden fixed inset-0 z-50 bg-black/92 backdrop-blur-2xl flex flex-col">
-      <div className="flex items-center justify-between px-5 pt-6">
-        <span className="font-serif-ed text-xl">SHRI G <span style={{ color: 'var(--aqua)' }}>AQUA</span></span>
-        <button onClick={onClose} className="btn-icon" aria-label="Close menu"><X size={18}/></button>
-      </div>
-      <div className="flex-1 flex flex-col justify-center items-start px-8 gap-6">
-        <Link onClick={onClose} href="/#products" className="font-serif-ed text-4xl">Products</Link>
-        <Link onClick={onClose} href="/#services" className="font-serif-ed text-4xl">Services</Link>
-        <Link onClick={onClose} href="/commercial-ro" className="font-serif-ed text-4xl" style={{ color: 'var(--aqua)' }}>Commercial RO</Link>
-        <Link onClick={onClose} href="/#contact" className="font-serif-ed text-4xl">Contact</Link>
-        <Link onClick={onClose} href="/?enquiry=1" className="font-serif-ed text-2xl text-white/70 inline-flex items-center gap-2"><Send size={18}/> Send enquiry</Link>
-      </div>
-      <div className="px-5 pb-safe grid grid-cols-2 gap-3">
-        <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary justify-center"><Phone size={15}/> Call</a>
-        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-primary justify-center" style={{ borderColor: 'rgba(103,232,249,0.4)', background: 'rgba(103,232,249,0.10)' }}><MessageCircle size={15}/> WhatsApp</a>
-      </div>
-    </div>
-  )
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(false)
+  useEffect(() => {
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReduced(mql.matches)
+    const onChange = (e) => setReduced(e.matches)
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [])
+  return reduced
 }
 
-function ActionRail() {
-  return (
-    <div className="hidden md:flex fixed right-6 bottom-6 z-40 flex-col gap-2">
-      <a href={`tel:${PHONE_PRIMARY}`} className="btn-icon" aria-label="Call"><Phone size={16}/></a>
-      <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="btn-icon" style={{ background: 'rgba(103,232,249,0.10)', borderColor: 'rgba(103,232,249,0.35)' }} aria-label="WhatsApp">
-        <MessageCircle size={16} style={{ color: 'var(--aqua)' }} />
-      </a>
-    </div>
-  )
+function useInView(ref) {
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    if (!ref.current) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.unobserve(entry.target) } },
+      { threshold: 0.1 }
+    )
+    observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [ref])
+  return inView
 }
 
-function MobileDock() {
-  return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 pb-safe px-4">
-      <div className="flex items-center gap-2 mx-auto max-w-md rounded-full border border-white/10 bg-black/70 backdrop-blur-xl px-2 py-2">
-        <a href={`tel:${PHONE_PRIMARY}`} className="flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-full bg-white/5 text-sm" aria-label="Call SHRI G AQUA">
-          <Phone size={16}/> Call
-        </a>
-        <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-full text-sm" style={{ background: 'rgba(103,232,249,0.14)', color: 'var(--aqua)' }} aria-label="WhatsApp SHRI G AQUA">
-          <MessageCircle size={16}/> WhatsApp
-        </a>
-        <Link href="/#contact" className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-white/5" aria-label="More contact options">
-          <ArrowUpRight size={16}/>
-        </Link>
-      </div>
-    </div>
-  )
-}
-
-/* ------- Capacity panel ------- */
-function CapacityPanel({ item }) {
-  const featured = item.featured
+function FadeInSection({ children, className = '', delay = 0 }) {
+  const ref = useRef(null)
+  const inView = useInView(ref)
   return (
     <div
-      className={`group relative rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col overflow-hidden ${featured ? 'md:-translate-y-2' : ''}`}
+      ref={ref}
+      className={className}
       style={{
-        background: featured
-          ? 'linear-gradient(180deg, rgba(103,232,249,0.06), rgba(255,255,255,0.02))'
-          : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${featured ? 'rgba(103,232,249,0.35)' : 'rgba(255,255,255,0.10)'}`,
-        boxShadow: featured ? `0 0 40px ${item.accent}22` : 'none'
+        opacity: inView ? 1 : 0,
+        transform: inView ? 'translateY(0)' : 'translateY(24px)',
+        transition: `opacity 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
       }}
     >
-      {/* Technical corner brackets */}
-      <span className="pointer-events-none absolute top-2 left-2 w-3 h-3 border-t border-l" style={{ borderColor: `${item.accent}80` }} />
-      <span className="pointer-events-none absolute top-2 right-2 w-3 h-3 border-t border-r" style={{ borderColor: `${item.accent}80` }} />
-      <span className="pointer-events-none absolute bottom-2 left-2 w-3 h-3 border-b border-l" style={{ borderColor: `${item.accent}80` }} />
-      <span className="pointer-events-none absolute bottom-2 right-2 w-3 h-3 border-b border-r" style={{ borderColor: `${item.accent}80` }} />
-      {/* Hover technical line */}
-      <span
-        className="pointer-events-none absolute left-0 right-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: `linear-gradient(90deg, transparent, ${item.accent}, transparent)` }}
-      />
-
-      {item.badge && (
-        <div className="absolute top-4 right-4 text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded-full"
-          style={{ background: 'rgba(103,232,249,0.14)', color: item.accent, border: `1px solid ${item.accent}55` }}>
-          {item.badge}
-        </div>
-      )}
-
-      <div className="text-[10px] uppercase tracking-[0.28em] text-white/50">{item.label}</div>
-      <div className="font-serif-ed text-3xl sm:text-4xl mt-2" style={{ color: featured ? item.accent : '#f5f7fa' }}>
-        {item.range}
-      </div>
-      <p className="mt-3 text-sm text-white/60 leading-relaxed">{item.description}</p>
-
-      <ul className="mt-5 space-y-2 flex-1">
-        {item.features.map((f, i) => (
-          <li key={i} className="flex items-start gap-2 text-sm text-white/75">
-            <Check size={14} className="mt-1 shrink-0" style={{ color: item.accent }} />
-            <span>{f}</span>
-          </li>
-        ))}
-      </ul>
-
-      <a
-        href={item.href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn-primary mt-6 justify-center"
-        style={{
-          borderColor: `${item.accent}55`,
-          background: featured ? 'rgba(103,232,249,0.14)' : 'rgba(255,255,255,0.06)',
-          color: featured ? item.accent : '#f5f7fa'
-        }}
-      >
-        <MessageCircle size={14}/> {item.cta}
-      </a>
+      {children}
     </div>
   )
 }
 
-/* ------- Contact section (route-local; imports data from lib/business) ------- */
-function ContactSection() {
+function SectionHeading({ label, title, subtitle, light, center = true }) {
   return (
-    <section id="contact" className="relative stage grain px-6 py-24 sm:py-28 scroll-mt-24">
-      <div className="stars" />
-      <div className="relative z-10 max-w-4xl mx-auto text-center">
-        <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">Contact</div>
-        <h2 className="font-serif-ed text-4xl sm:text-5xl md:text-6xl mt-4 leading-[1.05]">
-          The service you need,<br/> one call away.
-        </h2>
-        <p className="mt-6 text-white/60 max-w-lg mx-auto">
-          SHRI G AQUA, Mathura — Commercial RO planning, Domestic RO service, Split AC installation and appliance support.
-        </p>
+    <div className={`mb-12 ${center ? 'text-center' : ''} ${light ? 'text-white' : ''}`}>
+      {label && <span className="section-label">{label}</span>}
+      <h2 className={`section-title ${center ? 'mx-auto' : ''}`}>{title}</h2>
+      {subtitle && (
+        <p className={`section-subtitle mt-4 ${center ? 'mx-auto' : ''}`}>{subtitle}</p>
+      )}
+    </div>
+  )
+}
 
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto text-left">
-          <a href={`tel:${PHONE_PRIMARY}`} className="group flex items-center gap-3 rounded-2xl border border-white/10 p-4 hover:border-white/30 transition">
-            <div className="btn-icon"><Phone size={16}/></div>
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Call primary</div>
-              <div className="text-sm">{PHONE_PRIMARY_DISPLAY}</div>
-            </div>
-          </a>
-          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-3 rounded-2xl border border-white/10 p-4 hover:border-white/30 transition">
-            <div className="btn-icon" style={{ background: 'rgba(103,232,249,0.12)', borderColor: 'rgba(103,232,249,0.35)' }}><MessageCircle size={16} style={{ color: 'var(--aqua)' }}/></div>
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">WhatsApp</div>
-              <div className="text-sm">{PHONE_PRIMARY_DISPLAY}</div>
-            </div>
-          </a>
-          <a href={`tel:${PHONE_ALT}`} className="group flex items-center gap-3 rounded-2xl border border-white/10 p-4 hover:border-white/30 transition">
-            <div className="btn-icon"><Phone size={16}/></div>
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Alternate</div>
-              <div className="text-sm">{PHONE_ALT_DISPLAY}</div>
-            </div>
-          </a>
-          <a href={`mailto:${EMAIL}`} className="group flex items-center gap-3 rounded-2xl border border-white/10 p-4 hover:border-white/30 transition">
-            <div className="btn-icon"><Mail size={16}/></div>
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Email</div>
-              <div className="text-sm break-all">{EMAIL}</div>
-            </div>
-          </a>
-          <a href={MAPS_URL} target="_blank" rel="noopener noreferrer" className="group sm:col-span-2 flex items-start gap-3 rounded-2xl border border-white/10 p-4 hover:border-white/30 transition text-left">
-            <div className="btn-icon shrink-0"><MapPin size={16}/></div>
-            <div>
-              <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Address · Get directions</div>
-              <div className="text-sm mt-1 leading-relaxed">{ADDRESS_LINE}</div>
-            </div>
-          </a>
-        </div>
+/* ============= NAVBAR ============= */
+function Navbar() {
+  const scrollY = useScrollY()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const scrolled = scrollY > 60
 
-        <div className="mt-16 hairline max-w-md mx-auto" />
-        <div className="mt-8 flex flex-wrap justify-center gap-4 text-xs text-white/50">
-          <Link href="/" className="hover:text-white">Home</Link>
-          <span className="text-white/20">·</span>
-          <Link href="/#products" className="hover:text-white">Products</Link>
-          <span className="text-white/20">·</span>
-          <Link href="/commercial-ro" className="hover:text-white">Commercial RO</Link>
-          <span className="text-white/20">·</span>
-          <Link href="/#care" className="hover:text-white">Appliance care</Link>
+  const links = [
+    { href: '/', label: 'Home' },
+    { href: '/#services', label: 'RO Services' },
+    { href: '/ac-service', label: 'AC Services' },
+    { href: '/commercial-ro', label: 'Commercial RO' },
+    { href: '/ro-amc', label: 'AMC Plans' },
+    { href: '/#about', label: 'About Us' },
+    { href: '/contact', label: 'Contact' },
+  ]
+
+  return (
+    <>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'glass-nav shadow-lg' : 'bg-transparent'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-[#041827] flex items-center justify-center">
+                <Droplets size={20} className="text-[#20C5D8]" />
+              </div>
+              <div>
+                <span className="font-heading text-lg text-white">Shrig</span>
+                <span className="font-heading text-lg text-[#20C5D8]"> Aqua</span>
+              </div>
+            </Link>
+            <div className="hidden lg:flex items-center gap-1">
+              {links.map((l) => (
+                <Link key={l.href} href={l.href} className="px-3 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors rounded-lg hover:bg-white/5">{l.label}</Link>
+              ))}
+            </div>
+            <div className="hidden lg:flex items-center gap-3">
+              <a href={`tel:${PHONE_PRIMARY}`} className="flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors">
+                <Phone size={14} />
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/40">Call Us Anytime</div>
+                  <div className="font-semibold text-white">{PHONE_PRIMARY_DISPLAY}</div>
+                </div>
+              </a>
+              <Link href="/book-service" className="btn-aqua text-sm px-5 py-2.5">Book a Service</Link>
+            </div>
+            <button onClick={() => setMenuOpen(true)} className="lg:hidden p-2 text-white/80 hover:text-white" aria-label="Open menu"><Menu size={22} /></button>
+          </div>
         </div>
-        <p className="mt-6 text-xs text-white/40 pb-24 md:pb-0">
-          © {new Date().getFullYear()} SHRI G AQUA · Mathura, Uttar Pradesh
-        </p>
+      </nav>
+      {menuOpen && (
+        <div className="fixed inset-0 z-[60] bg-[#041827] flex flex-col">
+          <div className="flex items-center justify-between px-4 pt-5 pb-4 border-b border-white/10">
+            <Link href="/" className="flex items-center gap-2" onClick={() => setMenuOpen(false)}>
+              <Droplets size={20} className="text-[#20C5D8]" />
+              <span className="font-heading text-lg text-white">Shrig <span className="text-[#20C5D8]">Aqua</span></span>
+            </Link>
+            <button onClick={() => setMenuOpen(false)} className="p-2 text-white/80 hover:text-white"><X size={22} /></button>
+          </div>
+          <div className="flex-1 flex flex-col px-4 py-8 gap-2">
+            {links.map((l) => (
+              <Link key={l.href} href={l.href} onClick={() => setMenuOpen(false)} className="py-3 px-4 text-lg font-heading text-white/80 hover:text-white hover:bg-white/5 rounded-xl">{l.label}</Link>
+            ))}
+          </div>
+          <div className="px-4 pb-8 space-y-3">
+            <a href={`tel:${PHONE_PRIMARY}`} className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl border border-white/20 text-white font-semibold"><Phone size={18} /> Call {PHONE_PRIMARY_DISPLAY}</a>
+            <Link href="/book-service" onClick={() => setMenuOpen(false)} className="btn-aqua w-full justify-center py-3.5">Book a Service</Link>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+/* ============= HERO ============= */
+function HeroSection() {
+  return (
+    <section className="relative min-h-[70vh] flex items-center overflow-hidden bg-[#041827]">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 left-1/3 w-96 h-96 rounded-full bg-[#20C5D8] opacity-[0.03] blur-[80px]" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#3CE1EE] opacity-[0.02] blur-[60px]" />
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full pt-28 pb-20 md:pt-36 md:pb-24">
+        <div className="max-w-4xl">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs sm:text-sm text-white/50 mb-6">
+            <Link href="/" className="hover:text-white transition-colors">Home</Link>
+            <ChevronRight size={14} className="text-white/30" />
+            <span className="text-[#20C5D8] font-medium">Commercial RO</span>
+          </nav>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#20C5D8]/10 border border-[#20C5D8]/20 text-[#20C5D8] text-xs sm:text-sm font-medium mb-6">
+            <Building2 size={14} /> Commercial & Industrial RO Systems
+          </div>
+          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05] text-white">
+            High-Capacity RO Systems<br /><span className="text-[#20C5D8]">for Your Business.</span>
+          </h1>
+          <p className="mt-6 text-base sm:text-lg text-white/70 max-w-2xl leading-relaxed">
+            From 250 LPH compact units to 3000+ LPH industrial plants — we design, install, and maintain commercial RO systems for businesses across Mathura.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            <a href={WHATSAPP_COMMERCIAL} target="_blank" rel="noopener noreferrer" className="btn-aqua text-base px-7 py-3.5 justify-center"><MessageCircle size={18} /> Discuss Your Requirement</a>
+            <a href={`tel:${PHONE_PRIMARY}`} className="btn-outline text-base px-7 py-3.5 justify-center"><Phone size={18} /> Call {PHONE_PRIMARY_DISPLAY}</a>
+          </div>
+          <div className="mt-10 flex flex-wrap gap-4">
+            {['Free site survey', 'Custom configurations', 'Ongoing AMC support', 'Mathura-wide service'].map((item) => (
+              <div key={item} className="flex items-center gap-2 text-white/60 text-sm">
+                <Check size={16} className="text-[#20C5D8] shrink-0" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   )
 }
 
-/* ============================================================
-   Page
-============================================================ */
-export default function CommercialROPage() {
-  const [menuOpen, setMenuOpen] = useState(false)
+/* ============= CAPACITIES ============= */
+const CAPACITIES = [
+  {
+    range: '250 – 500 LPH',
+    label: 'Compact Commercial',
+    description: 'Perfect for small offices, restaurants, cafés, clinics, and coaching institutes that need a reliable purified water supply.',
+    features: ['Compact skid-mounted design', 'Low power consumption', 'Fully automatic operation', 'Easy maintenance'],
+    popular: false,
+    waMsg: 'Hello Shrig Aqua, I want to enquire about the 250-500 LPH Commercial RO system.',
+  },
+  {
+    range: '1000 – 2000 LPH',
+    label: 'High-Demand Commercial',
+    description: 'Built for schools, hotels, banquet halls, hospitals, and housing societies with higher water consumption needs.',
+    features: ['Heavy-duty FRP / SS vessels', 'Automatic control valves', 'Anti-scalant dosing system', 'Multi-stage filtration'],
+    popular: true,
+    waMsg: 'Hello Shrig Aqua, I want to enquire about the 1000-2000 LPH Commercial RO system.',
+  },
+  {
+    range: '3000+ LPH',
+    label: 'Industrial Custom',
+    description: 'Custom-engineered large-capacity plants for manufacturing units, mineral water packaging, and industrial processing.',
+    features: ['Custom multi-stage filtration', 'Industrial softeners & sand filters', 'High-capacity RO membranes', 'Full piping & integration'],
+    popular: false,
+    waMsg: 'Hello Shrig Aqua, I want to enquire about the 3000+ LPH Industrial RO system.',
+  },
+]
 
+function CapacitiesSection() {
   return (
-    <main className="relative w-full">
-      <TopBar onMenu={() => setMenuOpen(true)} />
-      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
-
-      {/* ============ HERO ============ */}
-      <section className="relative stage grain overflow-hidden">
-        <div className="stars" />
-        <div className="relative z-10 pt-[104px] sm:pt-[128px] pb-16 sm:pb-24 px-5 sm:px-8 max-w-5xl mx-auto">
-          {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-white/45">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <ChevronRight size={12} />
-            <span className="text-white/70">Commercial RO Solutions</span>
-          </nav>
-
-          <div className="mt-8 sm:mt-10 text-center">
-            <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-white/55">
-              Industrial &amp; Commercial Solutions · Mathura
-            </div>
-            <h1 className="font-serif-ed mt-4 text-4xl sm:text-5xl md:text-6xl leading-[1.05] max-w-4xl mx-auto">
-              Water treatment engineered for the capacity your project needs.
-            </h1>
-            <p className="mt-5 text-sm sm:text-base text-white/60 max-w-2xl mx-auto leading-relaxed">
-              Commercial RO, industrial water purification and softening systems for offices, restaurants, schools, hospitals, hotels, institutions, housing societies and manufacturing requirements across Mathura.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a
-                href={WHATSAPP_CR_HERO}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-                style={{ borderColor: 'rgba(103,232,249,0.45)', background: 'rgba(103,232,249,0.14)', color: 'var(--aqua)' }}
-              >
-                <MessageCircle size={15}/> Discuss your requirement
-              </a>
-              <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary">
-                <Phone size={15}/> Call {PHONE_PRIMARY_DISPLAY}
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ CAPACITY SELECTOR ============ */}
-      <section className="relative stage grain px-5 sm:px-8 py-16 sm:py-24 scroll-mt-24">
-        <div className="stars" />
-        <div className="relative z-10 max-w-6xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto">
-            <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">Capacities</div>
-            <h2 className="font-serif-ed text-4xl sm:text-5xl mt-3 leading-[1.05]">
-              From compact skids to industrial custom plants.
-            </h2>
-            <p className="mt-4 text-sm sm:text-base text-white/60">
-              Three capacity tiers. Every system is configured to the source water and the specific requirement.
-            </p>
-          </div>
-
-          <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 items-stretch">
-            {CAPACITIES.map((c, i) => (
-              <CapacityPanel key={i} item={c} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============ CUSTOM ENGINEERING PROCESS ============ */}
-      <section className="relative stage grain px-5 sm:px-8 py-16 sm:py-24 scroll-mt-24">
-        <div className="stars" />
-        <div className="relative z-10 max-w-6xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto">
-            <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">Requirement to installation</div>
-            <h2 className="font-serif-ed text-4xl sm:text-5xl mt-3 leading-[1.05]">
-              Our Custom Engineering Process
-            </h2>
-            <p className="mt-4 text-sm sm:text-base text-white/60">
-              Every water source has a different composition and TDS level. The system configuration is planned according to the source water, capacity requirement and intended application.
-            </p>
-          </div>
-
-          <div className="relative mt-12 sm:mt-16">
-            {/* Desktop process line */}
-            <div className="hidden md:block absolute top-[46px] left-[10%] right-[10%] h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(103,232,249,0.35), transparent)' }} />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {PROCESS_STEPS.map((s, i) => (
-                <div key={i} className="relative flex flex-col items-center md:items-start text-center md:text-left">
-                  <div
-                    className="relative w-14 h-14 rounded-full flex items-center justify-center border"
-                    style={{ borderColor: 'rgba(103,232,249,0.4)', background: 'rgba(103,232,249,0.06)' }}
-                  >
-                    <span className="font-serif-ed text-lg" style={{ color: 'var(--aqua)' }}>{s.n}</span>
-                  </div>
-                  <h3 className="font-serif-ed text-2xl mt-5">{s.title}</h3>
-                  <p className="mt-3 text-sm text-white/60 leading-relaxed max-w-xs">{s.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ COMMERCIAL APPLICATIONS ============ */}
-      <section className="relative stage grain px-5 sm:px-8 py-16 sm:py-24 scroll-mt-24">
-        <div className="stars" />
-        <div className="relative z-10 max-w-6xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto">
-            <div className="text-[11px] uppercase tracking-[0.28em] text-white/50">Applications</div>
-            <h2 className="font-serif-ed text-4xl sm:text-5xl mt-3 leading-[1.05]">
-              Deployed across sectors in Mathura.
-            </h2>
-          </div>
-
-          <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {APPLICATIONS.map((a, i) => (
-              <div
-                key={i}
-                className="group relative rounded-xl border border-white/10 bg-white/[0.015] p-4 sm:p-5 flex items-center gap-3 hover:border-white/30 transition"
-              >
-                <div className="w-10 h-10 rounded-lg border border-white/10 flex items-center justify-center shrink-0" style={{ background: 'rgba(103,232,249,0.06)' }}>
-                  <a.Icon size={16} style={{ color: 'var(--aqua)' }} />
-                </div>
-                <div className="text-sm text-white/80 leading-tight">{a.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============ SITE-SURVEY CONVERSION ============ */}
-      <section className="relative stage grain px-5 sm:px-8 py-16 sm:py-24 scroll-mt-24">
-        <div className="stars" />
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <div
-            className="relative rounded-3xl overflow-hidden p-8 sm:p-12"
-            style={{
-              background: 'radial-gradient(1000px 400px at 20% 0%, rgba(103,232,249,0.14), transparent 60%), linear-gradient(180deg, rgba(103,232,249,0.06), rgba(255,255,255,0.02))',
-              border: '1px solid rgba(103,232,249,0.35)',
-              boxShadow: '0 0 60px rgba(103,232,249,0.10)'
-            }}
-          >
-            <span className="pointer-events-none absolute top-3 left-3 w-4 h-4 border-t border-l" style={{ borderColor: 'rgba(103,232,249,0.55)' }} />
-            <span className="pointer-events-none absolute top-3 right-3 w-4 h-4 border-t border-r" style={{ borderColor: 'rgba(103,232,249,0.55)' }} />
-            <span className="pointer-events-none absolute bottom-3 left-3 w-4 h-4 border-b border-l" style={{ borderColor: 'rgba(103,232,249,0.55)' }} />
-            <span className="pointer-events-none absolute bottom-3 right-3 w-4 h-4 border-b border-r" style={{ borderColor: 'rgba(103,232,249,0.55)' }} />
-
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <div className="text-[11px] uppercase tracking-[0.28em] text-white/55">Site survey</div>
-                <h2 className="font-serif-ed text-3xl sm:text-4xl md:text-5xl mt-3 leading-[1.05]">
-                  Need a site survey in Mathura?
-                </h2>
-                <p className="mt-4 text-sm sm:text-base text-white/65 leading-relaxed">
-                  Call or message SHRI G AQUA to discuss an on-site evaluation for your commercial, institutional or industrial requirement.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <a href={`tel:${PHONE_PRIMARY}`} className="btn-primary justify-center" style={{ borderColor: 'rgba(103,232,249,0.45)' }}>
-                  <Phone size={15}/> Call {PHONE_PRIMARY_DISPLAY}
-                </a>
+    <section className="section-padding section-light">
+      <div className="container-wide">
+        <FadeInSection>
+          <SectionHeading
+            label="Capacities"
+            title="Choose the right capacity for your business."
+            subtitle="Three tiers covering every need — from compact commercial to full-scale industrial."
+          />
+        </FadeInSection>
+        <div className="grid md:grid-cols-3 gap-6">
+          {CAPACITIES.map((cap, i) => (
+            <FadeInSection key={cap.range} delay={i * 80}>
+              <div className={`card-white p-6 sm:p-7 flex flex-col h-full relative group ${cap.popular ? 'ring-2 ring-[#20C5D8] shadow-lg shadow-[#20C5D8]/10' : ''}`}>
+                {cap.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#20C5D8] text-white text-xs font-semibold whitespace-nowrap">Most Popular</div>
+                )}
+                <div className="text-[10px] uppercase tracking-wider text-[#607789] font-semibold mb-1">{cap.label}</div>
+                <div className="font-heading text-3xl text-[#0B2135] mb-3">{cap.range}</div>
+                <p className="text-sm text-[#607789] leading-relaxed mb-5">{cap.description}</p>
+                <ul className="space-y-2.5 flex-1 mb-6">
+                  {cap.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-[#0B2135]">
+                      <Check size={16} className="text-[#20C5D8] shrink-0 mt-0.5" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
                 <a
-                  href={WHATSAPP_CR_SITE_SURVEY}
+                  href={waLink(cap.waMsg)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-primary justify-center"
-                  style={{ borderColor: 'rgba(103,232,249,0.5)', background: 'rgba(103,232,249,0.14)', color: 'var(--aqua)' }}
+                  className={`w-full py-2.5 rounded-lg font-semibold text-sm text-center transition-all block ${cap.popular ? 'bg-[#20C5D8] text-white hover:bg-[#1ab0c2]' : 'border border-[#20C5D8]/30 text-[#20C5D8] hover:bg-[#20C5D8]/5'}`}
                 >
-                  <MessageCircle size={15}/> WhatsApp for site survey
-                </a>
-                <a href={`tel:${PHONE_ALT}`} className="text-center text-sm text-white/60 hover:text-white transition mt-1">
-                  Alternate: <span className="text-white/85">{PHONE_ALT_DISPLAY}</span>
+                  <MessageCircle size={16} className="inline mr-1.5" />
+                  Enquire Now
                 </a>
               </div>
-            </div>
-          </div>
+            </FadeInSection>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
 
-          {/* Return paths back to homepage */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-            <Link href="/#products" className="btn-ghost inline-flex items-center gap-1.5">
-              <ChevronLeft size={14}/> Back to products
-            </Link>
-            <Link href="/#services" className="btn-ghost inline-flex items-center gap-1.5">
-              View all services <ArrowUpRight size={13}/>
-            </Link>
-            <Link href="/#contact" className="btn-ghost inline-flex items-center gap-1.5">
-              Contact <ArrowUpRight size={13}/>
-            </Link>
-            <Link href="/" className="btn-ghost inline-flex items-center gap-1.5">
-              Home <ArrowUpRight size={13}/>
-            </Link>
+/* ============= PROCESS ============= */
+const PROCESS_STEPS = [
+  { icon: Beaker, title: 'Requirement Analysis & Water Testing', desc: 'We test your source water and understand your capacity needs.' },
+  { icon: Filter, title: 'System Design & Configuration', desc: 'Custom system designed with right vessels, membranes, and media.' },
+  { icon: Settings, title: 'Installation & Ongoing Support', desc: 'Professional installation, commissioning, and AMC support.' },
+]
+
+function ProcessSection() {
+  return (
+    <section className="section-padding section-aqua-tint">
+      <div className="container-wide">
+        <FadeInSection>
+          <SectionHeading
+            label="Our Process"
+            title="From requirement to installation."
+            subtitle="Every system is configured to your source water, capacity, and application."
+          />
+        </FadeInSection>
+        <div className="grid sm:grid-cols-3 gap-8 mt-8">
+          {PROCESS_STEPS.map((step, i) => (
+            <FadeInSection key={step.title} delay={i * 80} className="text-center">
+              <div className="w-16 h-16 mx-auto rounded-full bg-white shadow-md border border-[#20C5D8]/20 flex items-center justify-center">
+                <step.icon size={28} className="text-[#20C5D8]" />
+              </div>
+              <div className="mt-3 text-xs font-bold text-[#20C5D8]">STEP 0{i + 1}</div>
+              <h3 className="font-heading text-lg text-[#0B2135] mt-1 mb-2">{step.title}</h3>
+              <p className="text-sm text-[#607789] leading-relaxed max-w-xs mx-auto">{step.desc}</p>
+            </FadeInSection>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============= APPLICATIONS ============= */
+const APPLICATIONS = [
+  { label: 'Offices & Corporate', Icon: Building2 },
+  { label: 'Restaurants & Cafés', Icon: UtensilsCrossed },
+  { label: 'Schools & Colleges', Icon: School },
+  { label: 'Coaching Institutes', Icon: GraduationCap },
+  { label: 'Hotels & Resorts', Icon: Hotel },
+  { label: 'Hospitals & Clinics', Icon: HeartPulse },
+  { label: 'Banquet Halls', Icon: Building },
+  { label: 'Housing Societies', Icon: Home },
+  { label: 'Manufacturing Plants', Icon: Factory },
+  { label: 'Packaging Units', Icon: Package },
+  { label: 'Shopping Malls', Icon: Store },
+  { label: 'Gyms & Spas', Icon: Droplets },
+]
+
+function ApplicationsSection() {
+  return (
+    <section className="section-padding section-light">
+      <div className="container-wide">
+        <FadeInSection>
+          <SectionHeading
+            label="Applications"
+            title="Serving businesses across Mathura."
+            subtitle="We provide commercial RO solutions for a wide range of industries and establishments."
+          />
+        </FadeInSection>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {APPLICATIONS.map((app, i) => (
+            <FadeInSection key={app.label} delay={i * 40}>
+              <div className="card-white p-4 flex flex-col items-center text-center gap-2 hover:border-[#20C5D8]/30 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[#20C5D8]/10 flex items-center justify-center">
+                  <app.Icon size={20} className="text-[#20C5D8]" />
+                </div>
+                <span className="text-xs font-medium text-[#0B2135] leading-tight">{app.label}</span>
+              </div>
+            </FadeInSection>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============= WHY ============= */
+const WHY_BENEFITS = [
+  { icon: Award, title: 'Custom Engineered', desc: 'Every system designed around your source water and capacity needs.' },
+  { icon: Wrench, title: 'Professional Installation', desc: 'Expert installation with proper piping, testing, and commissioning.' },
+  { icon: Shield, title: 'Ongoing AMC Support', desc: 'Preventive maintenance plans to keep your system running efficiently.' },
+  { icon: Clock, title: 'Quick Service in Mathura', desc: 'Local support team for fast response across Mathura and nearby areas.' },
+  { icon: BarChart3, title: 'Water Quality Testing', desc: 'We test TDS, hardness, and contaminants before recommending a system.' },
+  { icon: HeadphonesIcon, title: 'End-to-End Support', desc: 'From site survey to installation and annual maintenance — we handle it all.' },
+]
+
+function WhySection() {
+  return (
+    <section className="section-padding section-aqua-tint">
+      <div className="container-wide">
+        <FadeInSection>
+          <SectionHeading
+            label="Why Shrig Aqua"
+            title="Why choose us for your commercial RO needs?"
+            subtitle="We combine technical expertise with local service to deliver reliable water treatment solutions."
+          />
+        </FadeInSection>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {WHY_BENEFITS.map((b, i) => (
+            <FadeInSection key={b.title} delay={i * 60}>
+              <div className="card-white p-6 flex items-start gap-4">
+                <div className="w-11 h-11 rounded-xl bg-[#20C5D8]/10 flex items-center justify-center shrink-0">
+                  <b.icon size={22} className="text-[#20C5D8]" />
+                </div>
+                <div>
+                  <h3 className="font-heading text-base text-[#0B2135] mb-1">{b.title}</h3>
+                  <p className="text-sm text-[#607789] leading-relaxed">{b.desc}</p>
+                </div>
+              </div>
+            </FadeInSection>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ============= CTA ============= */
+function CTASection() {
+  return (
+    <section className="section-navy section-padding wave-bg text-center">
+      <div className="container-wide max-w-3xl">
+        <FadeInSection>
+          <h2 className="section-title text-white mb-4">Ready to discuss your commercial RO requirements?</h2>
+          <p className="text-white/65 text-lg mb-8 max-w-xl mx-auto">Get a free consultation and site survey for your business in Mathura.</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href={WHATSAPP_COMMERCIAL} target="_blank" rel="noopener noreferrer" className="btn-aqua px-8 py-3.5 text-base justify-center">
+              <MessageCircle size={18} /> Enquire on WhatsApp
+            </a>
+            <a href={`tel:${PHONE_PRIMARY}`} className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-lg font-semibold text-base border border-white/20 text-white hover:bg-white/5 transition-all">
+              <Phone size={18} /> Call {PHONE_PRIMARY_DISPLAY}
+            </a>
+          </div>
+        </FadeInSection>
+      </div>
+    </section>
+  )
+}
+
+/* ============= FOOTER ============= */
+function Footer() {
+  return (
+    <footer className="bg-[#041827] text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+          <div className="lg:col-span-1">
+            <Link href="/" className="flex items-center gap-2 mb-4"><Droplets size={22} className="text-[#20C5D8]" /><span className="font-heading text-lg">Shrig <span className="text-[#20C5D8]">Aqua</span></span></Link>
+            <p className="text-sm text-white/50 leading-relaxed mb-4">{TAGLINE}. Professional RO, water purifier and AC services for homes and businesses in Mathura.</p>
+          </div>
+          <div>
+            <h4 className="font-heading text-sm text-white mb-4">Quick Links</h4>
+            <ul className="space-y-2.5">
+              {['Home', 'About Us', 'Services', 'AMC Plans', 'Contact Us'].map((link) => (
+                <li key={link}><Link href={link === 'Home' ? '/' : `/${link.toLowerCase().replace(/\s+/g, '-')}`} className="text-sm text-white/50 hover:text-[#20C5D8] transition-colors">{link}</Link></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-heading text-sm text-white mb-4">Our Services</h4>
+            <ul className="space-y-2.5">
+              {['RO Repair', 'RO Installation', 'Filter Replacement', 'AMC Plans', 'AC Services', 'Commercial RO'].map((s) => (
+                <li key={s}><Link href={`/${s.toLowerCase().replace(/\s+/g, '-')}`} className="text-sm text-white/50 hover:text-[#20C5D8] transition-colors">{s}</Link></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-heading text-sm text-white mb-4">Service Areas</h4>
+            <ul className="space-y-2.5">{SERVICE_AREAS.map((area) => (<li key={area}><span className="text-sm text-white/50">{area}</span></li>))}</ul>
+          </div>
+          <div>
+            <h4 className="font-heading text-sm text-white mb-4">Contact Us</h4>
+            <ul className="space-y-3">
+              <li><a href={`tel:${PHONE_PRIMARY}`} className="flex items-center gap-2 text-sm text-white/50 hover:text-[#20C5D8] transition-colors"><Phone size={14} /> {PHONE_PRIMARY_DISPLAY}</a></li>
+              <li><a href={`tel:${PHONE_ALT}`} className="flex items-center gap-2 text-sm text-white/50 hover:text-[#20C5D8] transition-colors"><Phone size={14} /> {PHONE_ALT_DISPLAY}</a></li>
+              <li><a href={`mailto:${EMAIL}`} className="flex items-center gap-2 text-sm text-white/50 hover:text-[#20C5D8] transition-colors break-all"><Mail size={14} /> {EMAIL}</a></li>
+              <li className="text-sm text-white/50"><span className="flex items-start gap-2"><MapPin size={14} className="shrink-0 mt-0.5" /> {ADDRESS_LINE}</span></li>
+              <li className="text-sm text-white/50">{WORKING_HOURS}</li>
+            </ul>
           </div>
         </div>
-      </section>
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-white/40">
+              <Link href="/privacy-policy" className="hover:text-white/60">Privacy Policy</Link>
+              <Link href="/terms" className="hover:text-white/60">Terms and Conditions</Link>
+              <Link href="/cancellation-policy" className="hover:text-white/60">Cancellation Policy</Link>
+              <Link href="/service-warranty" className="hover:text-white/60">Service Warranty Policy</Link>
+            </div>
+            <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} {BUSINESS_NAME}. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
 
-      {/* ============ EXISTING CONTACT ============ */}
-      <ContactSection />
+/* ============= FLOATING ACTIONS ============= */
+function FloatingActions() {
+  return (
+    <div className="hidden md:flex fixed right-5 bottom-5 z-40 flex-col gap-3">
+      <a href={`tel:${PHONE_PRIMARY}`} className="w-12 h-12 rounded-full bg-[#041827] border border-[#20C5D8]/20 flex items-center justify-center text-[#20C5D8] shadow-lg hover:bg-[#06263D] transition-all" aria-label="Call us"><Phone size={20} /></a>
+      <a href={WHATSAPP_COMMERCIAL} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-[#20C5D8] flex items-center justify-center text-[#041827] shadow-lg hover:bg-[#3CE1EE] transition-all" aria-label="WhatsApp"><MessageCircle size={20} /></a>
+      <ScrollToTop />
+    </div>
+  )
+}
 
-      <ActionRail />
-      <MobileDock />
+function ScrollToTop() {
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 400)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  if (!visible) return null
+  return (<button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/20 transition-all" aria-label="Scroll to top"><ArrowUp size={20} /></button>)
+}
+
+function MobileActionBar() {
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#041827]/95 backdrop-blur-lg border-t border-white/10 pb-safe">
+      <div className="flex items-center justify-around px-2 py-2">
+        <a href={`tel:${PHONE_PRIMARY}`} className="flex flex-col items-center gap-0.5 px-4 py-2 min-h-[44px]"><Phone size={18} className="text-white/70" /><span className="text-[10px] text-white/50">Call</span></a>
+        <a href={WHATSAPP_COMMERCIAL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 px-4 py-2 min-h-[44px]"><MessageCircle size={18} className="text-[#20C5D8]" /><span className="text-[10px] text-white/50">WhatsApp</span></a>
+        <a href={WHATSAPP_COMMERCIAL} target="_blank" rel="noopener noreferrer" className="btn-aqua px-6 py-2.5 text-sm">Enquire Now</a>
+      </div>
+    </div>
+  )
+}
+
+/* ============= MAIN PAGE ============= */
+export default function CommercialROPage() {
+  return (
+    <main className="relative pb-20 md:pb-0">
+      <Navbar />
+      <HeroSection />
+      <CapacitiesSection />
+      <ProcessSection />
+      <ApplicationsSection />
+      <WhySection />
+      <CTASection />
+      <Footer />
+      <FloatingActions />
+      <MobileActionBar />
     </main>
   )
 }

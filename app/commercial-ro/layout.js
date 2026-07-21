@@ -1,41 +1,41 @@
-import { PHONE_PRIMARY_DISPLAY, PHONE_ALT_DISPLAY, EMAIL } from '@/lib/business'
+import { BUSINESS_NAME, PHONE_PRIMARY_DISPLAY, PHONE_ALT_DISPLAY, EMAIL } from '@/lib/business'
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ||
   'https://www.shrigaqua.in'
 
 export const metadata = {
-  title: 'Commercial RO Plant Systems in Mathura | SHRI G AQUA',
+  title: `Commercial RO Systems in Mathura | ${BUSINESS_NAME}`,
   description:
-    'Explore 250–500 LPH, 1000–2000 LPH and customized 3000+ LPH Commercial and Industrial RO systems, installation and maintenance support from SHRI G AQUA in Mathura.',
+    'Commercial RO systems from 250 LPH to 3000+ LPH for offices, restaurants, schools, hotels, and businesses in Mathura. Installation, maintenance, and AMC support by Shrig Aqua.',
   alternates: { canonical: '/commercial-ro' },
   openGraph: {
-    title: 'Commercial RO Plant Systems in Mathura | SHRI G AQUA',
+    title: `Commercial RO Systems in Mathura | ${BUSINESS_NAME}`,
     description:
-      'Commercial and Industrial RO capacities from 250 LPH to custom 3000+ LPH plants, planned around your requirement by SHRI G AQUA, Mathura.',
+      `Commercial and industrial RO capacities from 250 LPH to custom 3000+ LPH plants by ${BUSINESS_NAME}, Mathura.`,
     url: '/commercial-ro',
-    siteName: 'SHRI G AQUA',
+    siteName: BUSINESS_NAME,
     type: 'website',
-    locale: 'en_IN'
+    locale: 'en_IN',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Commercial RO Plant Systems in Mathura | SHRI G AQUA',
+    title: `Commercial RO Systems in Mathura | ${BUSINESS_NAME}`,
     description:
-      'Commercial and Industrial RO capacities from 250 LPH to custom 3000+ LPH plants — SHRI G AQUA, Mathura.'
+      `Commercial and industrial RO capacities from 250 LPH to custom 3000+ LPH plants — ${BUSINESS_NAME}, Mathura.`,
   },
-  robots: { index: true, follow: true }
+  robots: { index: true, follow: true },
 }
 
 const serviceLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
-  serviceType: 'Commercial and Industrial RO Plant Systems',
-  name: 'Commercial RO Plant Systems in Mathura',
+  serviceType: 'Commercial and Industrial RO Systems',
+  name: `Commercial RO Systems in Mathura | ${BUSINESS_NAME}`,
   areaServed: { '@type': 'City', name: 'Mathura, Uttar Pradesh' },
   provider: {
     '@type': 'LocalBusiness',
-    name: 'SHRI G AQUA',
+    name: BUSINESS_NAME,
     url: SITE_URL,
     telephone: PHONE_PRIMARY_DISPLAY,
     email: EMAIL,
@@ -45,12 +45,12 @@ const serviceLd = {
       addressLocality: 'Mathura',
       addressRegion: 'Uttar Pradesh',
       postalCode: '281001',
-      addressCountry: 'IN'
+      addressCountry: 'IN',
     },
     contactPoint: [
       { '@type': 'ContactPoint', telephone: PHONE_PRIMARY_DISPLAY, contactType: 'customer service' },
-      { '@type': 'ContactPoint', telephone: PHONE_ALT_DISPLAY, contactType: 'customer service' }
-    ]
+      { '@type': 'ContactPoint', telephone: PHONE_ALT_DISPLAY, contactType: 'customer service' },
+    ],
   },
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
@@ -61,30 +61,27 @@ const serviceLd = {
         itemOffered: {
           '@type': 'Service',
           name: 'Compact Commercial RO 250–500 LPH',
-          description:
-            'Ideal for small offices, restaurants, cafés and coaching institutes requiring a steady purified-water supply.'
-        }
+          description: 'Ideal for small offices, restaurants, cafés and coaching institutes.',
+        },
       },
       {
         '@type': 'Offer',
         itemOffered: {
           '@type': 'Service',
           name: 'High-Demand Commercial RO 1000–2000 LPH',
-          description:
-            'Engineered for schools, banquet halls, hotels, hospitals and housing societies.'
-        }
+          description: 'Engineered for schools, banquet halls, hotels, hospitals and housing societies.',
+        },
       },
       {
         '@type': 'Offer',
         itemOffered: {
           '@type': 'Service',
           name: 'Industrial Custom RO 3000 LPH+',
-          description:
-            'Custom-built large-capacity mineral-water packaging plants and industrial manufacturing setups.'
-        }
-      }
-    ]
-  }
+          description: 'Custom-built large-capacity systems for manufacturing and packaging plants.',
+        },
+      },
+    ],
+  },
 }
 
 const breadcrumbLd = {
@@ -92,8 +89,8 @@ const breadcrumbLd = {
   '@type': 'BreadcrumbList',
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
-    { '@type': 'ListItem', position: 2, name: 'Commercial RO Solutions', item: `${SITE_URL}/commercial-ro` }
-  ]
+    { '@type': 'ListItem', position: 2, name: 'Commercial RO', item: `${SITE_URL}/commercial-ro` },
+  ],
 }
 
 export default function CommercialROLayout({ children }) {
